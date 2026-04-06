@@ -4,7 +4,7 @@ html, body { margin: 0; padding: 0; height: 100%; font-family: 'Segoe UI', sans-
 .controls {
   position: absolute; top: 15px; left: 15px; z-index: 1000;
   background: rgba(255, 255, 255, 0.98); padding: 12px; border-radius: 12px;
-  box-shadow: 0 4px 15px rgba(0,0,0,0.15); width: 200px;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.15); width: 210px;
   transition: all 0.3s ease; border: 1px solid #ddd;
 }
 
@@ -13,8 +13,13 @@ html, body { margin: 0; padding: 0; height: 100%; font-family: 'Segoe UI', sans-
   border-radius: 8px; padding: 10px; cursor: pointer; font-weight: bold;
 }
 
-.controls-content { display: flex; flex-direction: column; gap: 10px; margin-top: 12px; max-height: 500px; transition: all 0.3s ease; }
+.controls-content { display: flex; flex-direction: column; gap: 8px; margin-top: 12px; max-height: 600px; transition: all 0.3s ease; }
 .controls.collapsed .controls-content { max-height: 0; opacity: 0; pointer-events: none; margin-top: 0; }
+
+/* Navegación interna */
+.nav-section { display: flex; flex-direction: column; gap: 5px; }
+.nav-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 5px; }
+.nav-grid button { padding: 5px !important; font-size: 11px !important; background: #f8f9fa; border: 1px solid #ddd; }
 
 .controls button, select { padding: 10px; border-radius: 6px; border: 1px solid #ccc; cursor: pointer; font-weight: 600; }
 #resetBtn, #toggleNamesBtn { background: #1f6feb; color: white; border: none; }

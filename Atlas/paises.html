@@ -12,12 +12,21 @@
 <div class="controls" id="controlsContainer">
   <button id="toggleMenu" class="menu-trigger">▼ Menú</button>
   <div id="controlsContent" class="controls-content">
-    <button id="homeBtn" style="background: #2ea44f; color: white; border: none;">🏠 Inicio</button>
     
+    <div class="nav-section">
+      <button onclick="window.location.href='../index.html'" style="background: #2ea44f; color: white;">🏠 Inicio</button>
+      <div class="nav-grid">
+        <button onclick="window.location.href='ciudades.html'">🏙️ Ciudades</button>
+        <button onclick="window.location.href='climas.html'">☁️ Climas</button>
+      </div>
+    </div>
+
+    <hr style="border: 0; border-top: 1px solid #eee; margin: 5px 0;">
+
     <button id="resetBtn">Reset Mundo</button>
     <button id="toggleNamesBtn">Mostrar nombres</button>
     
-    <label for="continentSelect" style="font-size: 12px; font-weight: bold; margin-top: 5px; color: #444;">Filtrar Continente:</label>
+    <label for="continentSelect" style="font-size: 11px; font-weight: bold; color: #666;">Filtrar Continente:</label>
     <select id="continentSelect">
       <option value="all">Todo el Mundo</option>
       <option value="Europe">Europa</option>

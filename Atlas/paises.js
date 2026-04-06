@@ -1,5 +1,4 @@
 (async function () {
-  // 1. Inicialización
   const map = L.map("map", { zoomControl: true }).setView([20, 0], 2);
 
   L.tileLayer("https://{s}.basemaps.cartocdn.com/light_nolabels/{z}/{x}/{y}{r}.png", {
@@ -8,106 +7,124 @@
 
   let namesVisible = false;
   let geojsonLayer = null;
-  const labelsLayer = L.layerGroup();
+  const labelsLayer = L.layerGroup().addTo(map);
 
-  // 2. Cargar Datos simultáneamente
-  const [geoData, restData] = await Promise.all([
-    fetch("https://raw.githubusercontent.com/johan/world.geo.json/master/countries.geo.json").then(r => r.json()),
-    fetch("https://restcountries.com/v3.1/all?fields=name,region,cca3").then(r => r.json())
-  ]);
+  let geoData, restCountries;
 
-  // 3. Crear Mapa de Referencia (Unir GeoJSON con Región)
-  // Usamos el nombre del país como clave para asegurar la compatibilidad
-  const countryDataMap = new Map();
-  restData.forEach(c => {
-    countryDataMap.set(c.name.common, c.region);
-    // También guardamos por código CCA3 por si el GeoJSON usa IDs
-    countryDataMap.set(c.cca3, c.region);
+  // 1. Carga de datos con manejo de errores
+  try {
+    const responses = await Promise.all([
+      fetch("https://raw.githubusercontent.com/johan/world.geo.json/master/countries.geo.json"),
+      fetch("https://restcountries.com/v3.1/all?fields=name,region,cca3,flags,population,area,languages,currencies")
+    ]);
+    geoData = await responses[0].json();
+    restCountries = await responses[1].json();
+  } catch (err) {
+    console.error("Error al cargar datos:", err);
+    return;
+  }
+
+  // 2. Mapa de datos extendido
+  const countryInfoMap = new Map();
+  restCountries.forEach(c => {
+    const data = {
+      name: c.name.common,
+      region: c.region,
+      flag: c.flags.png,
+      pop: c.population.toLocaleString('es-ES'),
+      area: c.area ? c.area.toLocaleString('es-ES') + " km²" : "N/A",
+      langs: c.languages ? Object.values(c.languages).join(", ") : "N/A",
+      curr: c.currencies ? Object.values(c.currencies).map(curr => curr.name).join(", ") : "N/A"
+    };
+    countryInfoMap.set(c.name.common, data);
+    countryInfoMap.set(c.cca3, data);
   });
 
-  // 4. Función Maestra de Dibujo y Filtro
-  function updateMap(filterRegion = "all") {
-    // Limpiar capas previas si existen
+  // 3. Función para construir el Popup con estilo
+  function buildPopup(info) {
+    return `
+      <div class="popup-country" style="text-align: center; min-width: 180px;">
+        <img src="${info.flag}" style="width: 50px; border: 1px solid #ccc; margin-bottom: 8px;">
+        <div style="font-size: 16px; font-weight: bold; margin-bottom: 5px;">${info.name}</div>
+        <div style="text-align: left; font-size: 12px;">
+          <b>Población:</b> ${info.pop}<br>
+          <b>Área:</b> ${info.area}<br>
+          <b>Idiomas:</b> ${info.langs}<br>
+          <b>Moneda:</b> ${info.curr}
+        </div>
+      </div>`;
+  }
+
+  // 4. Función de actualización del mapa
+  function updateMap(filter = "all") {
     if (geojsonLayer) map.removeLayer(geojsonLayer);
     labelsLayer.clearLayers();
 
     geojsonLayer = L.geoJSON(geoData, {
       style: (feature) => {
-        // Intentamos obtener la región por nombre o por ID
-        const region = countryDataMap.get(feature.properties.name) || countryDataMap.get(feature.id);
-        const isMatch = filterRegion === "all" || region === filterRegion;
+        const info = countryInfoMap.get(feature.properties.name) || countryInfoMap.get(feature.id);
+        const match = filter === "all" || (info && info.region === filter);
 
         return {
-          color: "#333",
-          weight: 0.8,
-          fillColor: isMatch ? "#1f6feb" : "#d1d5db", // Azul si coincide, gris si no
-          fillOpacity: isMatch ? 0.5 : 0.05,          // Casi transparente si no coincide
-          pane: isMatch ? 'markerPane' : 'tilePane'   // Truco visual: los resaltados van al frente
+          fillColor: match ? "#1f6feb" : "#cccccc",
+          fillOpacity: match ? 0.6 : 0.05,
+          color: "white",
+          weight: 1
         };
       },
       onEachFeature: (feature, layer) => {
-        const region = countryDataMap.get(feature.properties.name) || countryDataMap.get(feature.id);
-        const isMatch = filterRegion === "all" || region === filterRegion;
+        const info = countryInfoMap.get(feature.properties.name) || countryInfoMap.get(feature.id);
+        const match = filter === "all" || (info && info.region === filter);
 
-        // Solo activar interacción y etiquetas si el país coincide con el filtro
-        if (isMatch) {
-          layer.bindPopup(`<b>${feature.properties.name}</b>`);
+        if (match && info) {
+          layer.bindPopup(buildPopup(info));
           
           if (namesVisible) {
-            const label = L.marker(layer.getBounds().getCenter(), {
+            L.marker(layer.getBounds().getCenter(), {
               icon: L.divIcon({ 
                 className: 'country-label', 
-                html: feature.properties.name,
+                html: info.name,
                 iconSize: [100, 20] 
               }),
               interactive: false
-            });
-            labelsLayer.addLayer(label);
+            }).addTo(labelsLayer);
           }
         } else {
-          // Desactivar clics en países que no son del continente seleccionado
           layer.unbindPopup();
-          layer.off('click');
         }
       }
     }).addTo(map);
-
-    if (namesVisible) labelsLayer.addTo(map);
   }
 
-  // 5. Controladores de Eventos
-  document.getElementById("continentSelect").addEventListener("change", (e) => {
-    const selected = e.target.value;
-    updateMap(selected);
+  // 5. Eventos
+  const selector = document.getElementById("continentSelect");
+  
+  selector.onchange = function(e) {
+    const val = e.target.value;
+    updateMap(val);
 
-    // Zoom suave a la región seleccionada
-    const bounds = {
-      "Europe": [[35, -10], [70, 40]],
-      "Africa": [[-35, -20], [35, 50]],
-      "Americas": [[-55, -170], [75, -30]],
-      "Asia": [[-10, 40], [60, 150]],
-      "Oceania": [[-50, 110], [0, 180]],
-      "all": [[-60, -170], [85, 190]]
+    const points = {
+      "Europe": [[50, 15], 4],
+      "Africa": [[0, 20], 3],
+      "Americas": [[10, -80], 3],
+      "Asia": [[30, 80], 3],
+      "Oceania": [[-25, 135], 4],
+      "all": [[20, 0], 2]
     };
-    
-    if (bounds[selected]) {
-        map.flyToBounds(bounds[selected], { padding: [20, 20] });
-    }
-  });
+    if(points[val]) map.flyTo(points[val][0], points[val][1]);
+  };
 
   document.getElementById("toggleNamesBtn").onclick = (e) => {
     namesVisible = !namesVisible;
     e.target.textContent = namesVisible ? "Ocultar nombres" : "Mostrar nombres";
-    updateMap(document.getElementById("continentSelect").value);
+    updateMap(selector.value);
   };
 
   document.getElementById("resetBtn").onclick = () => {
-    document.getElementById("continentSelect").value = "all";
+    selector.value = "all";
     updateMap("all");
     map.flyTo([20, 0], 2);
   };
 
-  // Carga inicial
   updateMap();
-
 })();

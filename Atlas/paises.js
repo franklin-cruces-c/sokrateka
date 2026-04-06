@@ -1,103 +1,92 @@
 (async function () {
-  // 1. Configuración del mapa con un estilo "Limpio" (Sin etiquetas de fondo)
+  // 1. Limpiamos cualquier rastro previo del mapa si existiera
+  const mapContainer = L.DomUtil.get('map');
+  if (mapContainer && mapContainer._leaflet_id) {
+    mapContainer._leaflet_id = null;
+  }
+
   const map = L.map("map", {
     zoomControl: true,
-    preferCanvas: true
+    preferCanvas: true,
+    minZoom: 3,
+    maxZoom: 10
   }).setView([54, 15], 4);
 
-  // Usamos CartoDB Positron (sin etiquetas) para evitar textos duplicados y el color verde
-  L.tileLayer("https://{s}.basemaps.cartocdn.com/light_nolabels/{z}/{x}/{y}{r}.png", {
-    attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OSM</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>'
+  // 2. CAPA DE FONDO: Usamos "Positron No Labels" para que el fondo sea mudo.
+  // Esto evita que al hacer zoom aparezcan textos verdes o nombres en otros idiomas.
+  const baseLayer = L.tileLayer("https://{s}.basemaps.cartocdn.com/light_nolabels/{z}/{x}/{y}{r}.png", {
+    attribution: '&copy; OpenStreetMap &copy; CARTO',
+    subdomains: 'abcd',
+    maxZoom: 20
   }).addTo(map);
 
   const EUROPE_BOUNDS = [[33, -25], [72, 45]];
   map.fitBounds(EUROPE_BOUNDS);
 
-  // --- DATOS DE MICROESTADOS (Para que no falte ninguno) ---
+  // 3. ESTILOS
+  const styles = {
+    default: { color: "#334155", weight: 1, fillColor: "#94a3b8", fillOpacity: 0.4 },
+    hover: { color: "#000", weight: 2, fillColor: "#3b82f6", fillOpacity: 0.6 },
+    selected: { color: "#1e40af", weight: 3, fillColor: "#2563eb", fillOpacity: 0.7 }
+  };
+
+  // 4. MICROESTADOS (Coordenadas exactas para que no desaparezcan)
   const microstates = [
-    { name: "Vatican City", latlng: [41.9029, 12.4534], displayName: "Ciudad del Vaticano" },
+    { name: "Vatican City", latlng: [41.9029, 12.4534], displayName: "Vaticano" },
     { name: "San Marino", latlng: [43.9424, 12.4578], displayName: "San Marino" },
     { name: "Liechtenstein", latlng: [47.1410, 9.5209], displayName: "Liechtenstein" },
     { name: "Andorra", latlng: [42.5063, 1.5218], displayName: "Andorra" },
-    { name: "Monaco", latlng: [43.7384, 7.4246], displayName: "Mónaco" }
+    { name: "Monaco", latlng: [43.7384, 7.4246], displayName: "Mónaco" },
+    { name: "Malta", latlng: [35.8989, 14.5146], displayName: "Malta" }
   ];
 
-  // Estilos
-  const defaultStyle = { color: "#4a90e2", weight: 1, fillColor: "#6baed6", fillOpacity: 0.4 };
-  const hoverStyle = { color: "#000", weight: 2, fillColor: "#ffd54f", fillOpacity: 0.7 };
+  // 5. CARGA DE DATOS
+  try {
+    const [geoData, restData] = await Promise.all([
+      fetch("https://raw.githubusercontent.com/johan/world.geo.json/master/countries.geo.json").then(r => r.json()),
+      fetch("https://restcountries.com/v3.1/all?fields=name,flags,population,languages,currencies,capital,area").then(r => r.json())
+    ]);
 
-  // --- CARGA DE DATOS ---
-  const [countriesGeoJson, restCountriesData] = await Promise.all([
-    fetch("https://raw.githubusercontent.com/johan/world.geo.json/master/countries.geo.json").then(r => r.json()),
-    fetch("https://restcountries.com/v3.1/all?fields=name,flags,population,languages,currencies,capital,area,latlng").then(r => r.json())
-  ]);
+    const countryInfoMap = new Map();
+    restData.forEach(c => countryInfoMap.set(c.name.common, c));
 
-  // Mapa de información de países
-  const countryInfoMap = new Map();
-  restCountriesData.forEach(c => {
-    countryInfoMap.set(c.name.common, c);
-    countryInfoMap.set(c.name.official, c);
-  });
-
-  // Función para crear Popups (Reutilizando tu lógica anterior)
-  function getPopupContent(name) {
-    const info = countryInfoMap.get(name);
-    if (!info) return `<b>${name}</b><br>Datos no encontrados.`;
-    
-    return `
-      <div class="popup-country">
-        <div class="title">
-          <img src="${info.flags.png}" alt="Bandera">
-          <span>${info.name.common}</span>
-        </div>
-        <div><strong>Población:</strong> ${info.population.toLocaleString()}</div>
-        <div><strong>Capital:</strong> ${info.capital ? info.capital[0] : 'N/A'}</div>
-      </div>`;
-  }
-
-  // --- DIBUJAR PAÍSES GRANDES ---
-  const geojsonLayer = L.geoJSON(countriesGeoJson, {
-    style: defaultStyle,
-    filter: (feature) => {
-      // Filtramos para que solo salgan países europeos (puedes ampliar esta lista)
-      const name = feature.properties.name;
-      const europeList = ["Spain", "France", "Germany", "Italy", "Poland", "Ukraine", "Norway", "Sweden", "United Kingdom", "Ireland", "Portugal", "Greece", "Austria", "Switzerland", "Belgium", "Netherlands"]; 
-      return europeList.includes(name);
-    },
-    onEachFeature: (feature, layer) => {
-      layer.on({
-        mouseover: () => layer.setStyle(hoverStyle),
-        mouseout: () => geojsonLayer.resetStyle(layer),
-        click: (e) => layer.bindPopup(getPopupContent(feature.properties.name)).openPopup()
-      });
-    }
-  }).addTo(map);
-
-  // --- DIBUJAR MICROESTADOS (Como círculos visibles) ---
-  microstates.forEach(state => {
-    const marker = L.circleMarker(state.latlng, {
-      radius: 6,
-      fillColor: "#ff9800",
-      color: "#000",
-      weight: 1,
-      opacity: 1,
-      fillOpacity: 0.8
+    // 6. DIBUJAR PAÍSES
+    const geojsonLayer = L.geoJSON(geoData, {
+      style: styles.default,
+      onEachFeature: (feature, layer) => {
+        layer.on({
+          mouseover: () => { layer.setStyle(styles.hover); layer.bringToFront(); },
+          mouseout: () => { if (layer !== selectedLayer) geojsonLayer.resetStyle(layer); },
+          click: (e) => {
+            if (selectedLayer) geojsonLayer.resetStyle(selectedLayer);
+            selectedLayer = layer;
+            layer.setStyle(styles.selected);
+            const info = countryInfoMap.get(feature.properties.name);
+            if(info) layer.bindPopup(`<b>${info.name.common}</b><br>Cap: ${info.capital}`).openPopup();
+          }
+        });
+      }
     }).addTo(map);
 
-    marker.on('click', (e) => {
-      marker.bindPopup(getPopupContent(state.name)).openPopup();
+    let selectedLayer = null;
+
+    // 7. DIBUJAR MICROESTADOS (Como puntos fijos)
+    microstates.forEach(state => {
+      const dot = L.circleMarker(state.latlng, {
+        radius: 5,
+        fillColor: "#ef4444",
+        color: "#fff",
+        weight: 1,
+        fillOpacity: 1
+      }).addTo(map);
+
+      dot.bindTooltip(state.displayName, { permanent: false, direction: 'top' });
     });
 
-    // Añadir nombre permanente si quieres
-    L.marker(state.latlng, {
-      icon: L.divIcon({
-        className: 'country-label',
-        html: state.displayName,
-        iconSize: [80, 20],
-        iconAnchor: [40, -10]
-      }),
-      interactive: false
-    }).addTo(map);
-  });
+  } catch (error) {
+    console.error("Error cargando el mapa:", error);
+  }
 
+  // BOTÓN RESET
+  document.getElementById("resetBtn").onclick = () => map.fitBounds(EUROPE_BOUNDS);
 })();

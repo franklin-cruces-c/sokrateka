@@ -1,11 +1,22 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Mapa Interactivo Mundo</title>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <link rel="stylesheet" href="paises.css">
+</head>
+<body>
+
 <div class="controls" id="controlsContainer">
-  <button id="toggleMenu" class="menu-trigger">☰</button>
+  <button id="toggleMenu" class="menu-trigger">▼ Menú</button>
   
   <div id="controlsContent" class="controls-content">
     <button id="resetBtn">Reset Mundo</button>
     <button id="toggleNamesBtn">Mostrar nombres</button>
     
-    <label for="continentSelect">Filtrar por Continente:</label>
+    <label for="continentSelect" style="font-size: 12px; font-weight: bold; margin-top: 5px;">Continente:</label>
     <select id="continentSelect">
       <option value="all">Todo el Mundo</option>
       <option value="Europe">Europa</option>
@@ -16,3 +27,10 @@
     </select>
   </div>
 </div>
+
+<div id="map"></div>
+
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script src="paises.js"></script>
+</body>
+</html>

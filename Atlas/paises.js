@@ -1,149 +1,115 @@
 (async function () {
-    // 1. CONFIGURACIÓN DEL MENÚ COLAPSABLE
+    // 1. MANEJO DEL MENÚ
     const menuBtn = document.getElementById("toggleMenu");
     const container = document.getElementById("controlsContainer");
+    menuBtn.onclick = () => {
+        container.classList.toggle("collapsed");
+        menuBtn.textContent = container.classList.contains("collapsed") ? "❯ Mostrar" : "▼ Cerrar";
+    };
 
-    if (menuBtn && container) {
-        menuBtn.addEventListener("click", function() {
-            container.classList.toggle("collapsed");
-            menuBtn.textContent = container.classList.contains("collapsed") ? "❯ Mostrar" : "▼ Cerrar";
-        });
-    }
-
-    // 2. INICIALIZACIÓN DEL MAPA
-    const map = L.map("map", { 
-        zoomControl: true,
-        attributionControl: false 
-    }).setView([20, 0], 2);
-
-    L.tileLayer("https://{s}.basemaps.cartocdn.com/light_nolabels/{z}/{x}/{y}{r}.png", {
-        attribution: "&copy; OpenStreetMap &copy; CARTO"
-    }).addTo(map);
+    // 2. CONFIGURACIÓN DEL MAPA
+    const map = L.map("map").setView([20, 0], 2);
+    L.tileLayer("https://{s}.basemaps.cartocdn.com/light_nolabels/{z}/{x}/{y}{r}.png").addTo(map);
 
     let namesVisible = false;
     let geojsonLayer = null;
     const labelsLayer = L.layerGroup().addTo(map);
-    const microstatesLayer = L.layerGroup().addTo(map); // Capa para círculos naranjas
-    const countryDataMap = new Map();
+    const microLayer = L.layerGroup().addTo(map);
+    const countryInfo = new Map();
 
-    // Lista de Microestados (Refuerzo visual: Círculos Naranjas)
-    // Se definen manualmente porque el GeoJSON a veces no los dibuja o RestCountries no da coords exactas para punto
-    const microstatesRefuerzo = [
-        { id: "VAT", name: "Vatican City", display: "Vaticano", latlng: [41.9029, 12.4534], region: "Europe" },
-        { id: "SMR", name: "San Marino", display: "San Marino", latlng: [43.9424, 12.4578], region: "Europe" },
-        { id: "LIE", name: "Liechtenstein", display: "Liechtenstein", latlng: [47.1410, 9.5209], region: "Europe" },
-        { id: "AND", name: "Andorra", display: "Andorra", latlng: [42.5063, 1.5218], region: "Europe" },
-        { id: "MCO", name: "Monaco", display: "Mónaco", latlng: [43.7384, 7.4246], region: "Europe" },
-        { id: "MLT", name: "Malta", display: "Malta", latlng: [35.8989, 14.5146], region: "Europe" },
-        { id: "SGP", name: "Singapore", display: "Singapur", latlng: [1.3521, 103.8198], region: "Asia" }
+    // Refuerzo para países pequeños (Círculos naranjas)
+    const microList = [
+        {id:"VAT", latlng:[41.9, 12.4], name:"Vaticano", reg:"Europe"},
+        {id:"MCO", latlng:[43.7, 7.4], name:"Mónaco", reg:"Europe"},
+        {id:"SMR", latlng:[43.9, 12.4], name:"San Marino", reg:"Europe"},
+        {id:"AND", latlng:[42.5, 1.5], name:"Andorra", reg:"Europe"},
+        {id:"MLT", latlng:[35.9, 14.5], name:"Malta", reg:"Europe"},
+        {id:"SGP", latlng:[1.3, 103.8], name:"Singapur", reg:"Asia"}
     ];
 
-    // 3. CARGA DE DATOS (GeoJSON + API RestCountries)
     try {
         const [geoRes, restRes] = await Promise.all([
             fetch("https://raw.githubusercontent.com/johan/world.geo.json/master/countries.geo.json"),
             fetch("https://restcountries.com/v3.1/all?fields=name,region,cca3,flags,population,area,languages")
         ]);
-
         const geoData = await geoRes.json();
         const restData = await restRes.json();
 
         restData.forEach(c => {
-            const info = {
+            const data = {
                 name: c.name.common,
                 region: c.region,
                 flag: c.flags.png,
                 pop: c.population.toLocaleString('es-ES'),
                 area: c.area ? c.area.toLocaleString('es-ES') + " km²" : "N/A",
-                // RECUPERADO: Idiomas oficiales
                 langs: c.languages ? Object.values(c.languages).join(", ") : "N/A"
             };
-            countryDataMap.set(c.name.common, info);
-            countryDataMap.set(c.cca3, info);
+            countryInfo.set(c.name.common, data);
+            countryInfo.set(c.cca3, data);
         });
 
-        // Función auxiliar para generar el popup unificado
-        function buildPopupContent(info) {
+        function buildPopup(info) {
             return `
                 <div class="popup-card">
                     <img src="${info.flag}">
-                    <div class="title">${info.name}</div>
-                    <div class="data-field">
-                        <b>Población:</b> ${info.pop}<br>
-                        <b>Área:</b> ${info.area}<br>
-                        <b>Idiomas:</b> ${info.langs}
-                    </div>
+                    <b>${info.name}</b>
+                    <span><b>Población:</b> ${info.pop}</span>
+                    <span><b>Área:</b> ${info.area}</span>
+                    <span><b>Idiomas:</b> ${info.langs}</span>
                 </div>`;
         }
 
-        // 4. FUNCIÓN PARA DIBUJAR PAÍSES Y MICROESTADOS
         function updateMap(filter = "all") {
             if (geojsonLayer) map.removeLayer(geojsonLayer);
             labelsLayer.clearLayers();
-            microstatesLayer.clearLayers(); // Limpiar círculos naranjas
+            microLayer.clearLayers();
 
-            // A. Dibujar países normales (GeoJSON)
             geojsonLayer = L.geoJSON(geoData, {
-                style: (feature) => {
-                    const info = countryDataMap.get(feature.properties.name) || countryDataMap.get(feature.id);
+                style: (f) => {
+                    const info = countryInfo.get(f.properties.name) || countryInfo.get(f.id);
                     const match = filter === "all" || (info && info.region === filter);
                     return {
                         fillColor: match ? "#1f6feb" : "#cccccc",
                         fillOpacity: match ? 0.6 : 0.05,
-                        color: "white",
-                        weight: 1
+                        color: "white", weight: 1
                     };
                 },
-                onEachFeature: (feature, layer) => {
-                    const info = countryDataMap.get(feature.properties.name) || countryDataMap.get(feature.id);
+                onEachFeature: (f, layer) => {
+                    const info = countryInfo.get(f.properties.name) || countryInfo.get(f.id);
                     const match = filter === "all" || (info && info.region === filter);
 
                     if (match && info) {
-                        layer.bindPopup(buildPopupContent(info));
+                        layer.bindPopup(buildPopup(info));
+
+                        // EFECTO HOVER (Cambio de color al pasar el mouse)
+                        layer.on('mouseover', function () {
+                            this.setStyle({ fillColor: "#ffcc00", fillOpacity: 0.9 });
+                        });
+                        layer.on('mouseout', function () {
+                            geojsonLayer.resetStyle(this);
+                        });
 
                         if (namesVisible) {
-                            const center = layer.getBounds().getCenter();
-                            L.marker(center, {
+                            L.marker(layer.getBounds().getCenter(), {
                                 icon: L.divIcon({ className: 'country-label', html: info.name, iconSize: [100, 20] }),
                                 interactive: false
                             }).addTo(labelsLayer);
                         }
-                    } else {
-                        layer.unbindPopup();
                     }
                 }
             }).addTo(map);
 
-            // B. DIBUJAR MICROESTADOS (Círculos Naranjas) - RECUPERADO
-            microstatesRefuerzo.forEach(ms => {
-                const match = filter === "all" || ms.region === filter;
-                if (match) {
-                    const dot = L.circleMarker(ms.latlng, {
-                        radius: 7,
-                        fillColor: "#e67e22", // Naranja
-                        color: "#fff",
-                        weight: 2,
-                        fillOpacity: 0.9
-                    }).addTo(microstatesLayer);
-
-                    const info = countryDataMap.get(ms.id) || countryDataMap.get(ms.name);
-                    if (info) {
-                        dot.bindPopup(buildPopupContent(info));
-                    } else {
-                        dot.bindPopup(`<b>${ms.display}</b>`);
-                    }
-
-                    if (namesVisible) {
-                        L.marker(ms.latlng, {
-                            icon: L.divIcon({ className: 'country-label', html: ms.display, iconSize: [80, 20] }),
-                            interactive: false
-                        }).addTo(labelsLayer);
-                    }
+            // Dibujar microestados
+            microList.forEach(m => {
+                if (filter === "all" || m.reg === filter) {
+                    const circle = L.circleMarker(m.latlng, { radius: 6, fillColor: "#e67e22", color: "#fff", weight: 2, fillOpacity: 1 }).addTo(microLayer);
+                    const info = countryInfo.get(m.id);
+                    if (info) circle.bindPopup(buildPopup(info));
                 }
             });
         }
 
-        // 5. CONTROLADORES DE EVENTOS
+        // EVENTOS
         document.getElementById("continentSelect").onchange = (e) => {
             const val = e.target.value;
             updateMap(val);
@@ -163,9 +129,6 @@
             map.flyTo([20, 0], 2);
         };
 
-        updateMap(); // Inicializar
-
-    } catch (err) {
-        console.error("Error crítico:", err);
-    }
+        updateMap();
+    } catch (e) { console.error(e); }
 })();

@@ -3,179 +3,42 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Mapa interactivo de Europa</title>
-  <link
-    rel="stylesheet"
-    href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
-    integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY="
-    crossorigin=""
-  />
+  <title>Socrateka Atlas</title>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" crossorigin="" />
   <style>
-    :root {
-      --panel-bg: rgba(255, 255, 255, 0.96);
-      --panel-shadow: 0 10px 24px rgba(0, 0, 0, 0.14);
-      --border: #d7d7d7;
-      --text: #1b1b1b;
-      --muted: #666;
-      --blue: #1f6feb;
-      --blue-hover: #1558b0;
-      --country-stroke: #2d2d2d;
-      --country-fill: #dfe9f6;
-      --country-hover: #ffe28a;
-      --country-selected: #ffbc4c;
-      --capital: #e53935;
-    }
-
-    html, body {
-      margin: 0;
-      padding: 0;
-      height: 100%;
-      font-family: Arial, Helvetica, sans-serif;
-      color: var(--text);
-      background: #f3f3f3;
-    }
-
-    #map {
-      width: 100%;
-      height: 100vh;
-    }
-
+    html, body { margin:0; padding:0; height:100%; font-family: Arial, sans-serif; }
+    #map { width:100%; height:100vh; }
     .controls {
-      position: absolute;
-      top: 12px;
-      left: 12px;
-      z-index: 1200;
-      display: flex;
-      flex-direction: column;
-      gap: 8px;
-      background: var(--panel-bg);
-      padding: 12px;
-      border-radius: 12px;
-      box-shadow: var(--panel-shadow);
-      border: 1px solid var(--border);
-      min-width: 230px;
-      backdrop-filter: blur(4px);
+      position:absolute; top:12px; left:12px; z-index:1000; width:340px;
+      background:rgba(255,255,255,.95); border-radius:16px; box-shadow:0 4px 18px rgba(0,0,0,.18);
+      padding:14px;
     }
-
     .controls button {
-      border: 0;
-      border-radius: 9px;
-      padding: 10px 12px;
-      font-size: 14px;
-      font-weight: 700;
-      cursor: pointer;
-      color: white;
-      background: var(--blue);
-      transition: background .15s ease, transform .08s ease;
+      width:100%; margin-bottom:10px; padding:12px 14px; border:0; border-radius:10px;
+      background:#2d6cdf; color:white; font-weight:700; cursor:pointer; font-size:15px;
     }
-
-    .controls button:hover {
-      background: var(--blue-hover);
+    .controls button:last-of-type { margin-bottom:8px; }
+    .controls button:hover { background:#1f5bc5; }
+    .hint { color:#666; font-size:12px; line-height:1.35; }
+    .country-label, .capital-label {
+      background: transparent; border: none; box-shadow:none; white-space:nowrap;
+      font-weight:700; text-shadow: 0 0 3px #fff, 1px 1px 1px #fff, -1px -1px 1px #fff;
     }
-
-    .controls button:active {
-      transform: translateY(1px);
-    }
-
-    .controls .hint {
-      font-size: 12px;
-      line-height: 1.35;
-      color: var(--muted);
-    }
-
-    .country-label,
-    .capital-label {
-      background: transparent;
-      border: 0;
-      box-shadow: none;
-      font-weight: 700;
-      white-space: nowrap;
-      text-align: center;
-      pointer-events: none;
-    }
-
-    .country-label {
-      color: #111;
-      font-size: 11px;
-      text-shadow:
-        0 1px 0 #fff,
-        1px 0 0 #fff,
-        0 -1px 0 #fff,
-        -1px 0 0 #fff,
-        1px 1px 2px rgba(255,255,255,.9),
-        -1px -1px 2px rgba(255,255,255,.9);
-    }
-
-    .capital-label {
-      color: #9f1111;
-      font-size: 11px;
-      text-shadow:
-        0 1px 0 #fff,
-        1px 0 0 #fff,
-        0 -1px 0 #fff,
-        -1px 0 0 #fff,
-        1px 1px 2px rgba(255,255,255,.95),
-        -1px -1px 2px rgba(255,255,255,.95);
-      transform: translateY(6px);
-    }
-
-    .popup-country {
-      min-width: 245px;
-      line-height: 1.45;
-      font-size: 14px;
-    }
-
-    .popup-title {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      margin-bottom: 8px;
-      font-size: 16px;
-      font-weight: 700;
-    }
-
-    .popup-title img {
-      width: 34px;
-      height: auto;
-      border: 1px solid #d0d0d0;
-      border-radius: 2px;
-      background: white;
-      flex: 0 0 auto;
-    }
-
-    .popup-grid {
-      display: grid;
-      grid-template-columns: auto 1fr;
-      gap: 5px 10px;
-    }
-
-    .popup-grid b {
-      white-space: nowrap;
-    }
-
+    .country-label { color:#111; font-size:11px; }
+    .capital-label { color:#a80000; font-size:11px; }
+    .popup-country { min-width:230px; line-height:1.4; }
+    .popup-title { display:flex; align-items:center; gap:8px; font-weight:700; font-size:16px; margin-bottom:8px; }
+    .popup-title img { width:36px; height:auto; border:1px solid #ccc; }
+    .popup-grid { display:grid; grid-template-columns:auto 1fr; gap:4px 8px; }
     .capital-dot {
-      width: 10px;
-      height: 10px;
-      border-radius: 50%;
-      background: var(--capital);
-      border: 2px solid #fff;
-      box-shadow: 0 0 0 1px rgba(0,0,0,.35), 0 1px 4px rgba(0,0,0,.25);
+      width:10px; height:10px; border-radius:50%; background:#ff3b3b; border:2px solid #fff;
+      box-shadow:0 0 4px rgba(0,0,0,.45);
     }
-
     .error-box {
-      position: absolute;
-      right: 12px;
-      top: 12px;
-      z-index: 1200;
-      background: rgba(176, 0, 32, 0.95);
-      color: #fff;
-      padding: 12px 14px;
-      border-radius: 12px;
-      box-shadow: var(--panel-shadow);
-      max-width: 320px;
-      display: none;
-      line-height: 1.4;
-      font-size: 14px;
+      position:absolute; right:12px; top:12px; z-index:1100; display:none;
+      max-width:360px; background:#fff1f0; color:#8a1f11; border:1px solid #ffc9c2;
+      border-radius:10px; padding:10px 12px; box-shadow:0 2px 10px rgba(0,0,0,.12);
+      font-size:14px;
     }
   </style>
 </head>
@@ -186,15 +49,10 @@
     <button id="toggleCapitalsBtn">Mostrar capitales</button>
     <div class="hint">Hover: resaltar país · Click en país o punto rojo: ver información</div>
   </div>
-
   <div id="errorBox" class="error-box"></div>
   <div id="map"></div>
 
-  <script
-    src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
-    integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo="
-    crossorigin=""
-  ></script>
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" crossorigin=""></script>
   <script src="./app.js"></script>
 </body>
 </html>

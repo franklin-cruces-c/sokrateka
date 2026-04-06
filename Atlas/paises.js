@@ -1,13 +1,18 @@
 (async function () {
-    // 1. MENÚ COLAPSABLE
+    // 1. MANEJO DE LA INTERFAZ (Menú e Inicio)
     const menuBtn = document.getElementById("toggleMenu");
     const container = document.getElementById("controlsContainer");
+    
     menuBtn.onclick = () => {
         container.classList.toggle("collapsed");
         menuBtn.textContent = container.classList.contains("collapsed") ? "❯ Mostrar" : "▼ Cerrar";
     };
 
-    // 2. MAPA E INFRAESTRUCTURA
+    document.getElementById("homeBtn").onclick = () => {
+        window.location.href = '../index.html'; 
+    };
+
+    // 2. CONFIGURACIÓN DEL MAPA
     const map = L.map("map").setView([20, 0], 2);
     L.tileLayer("https://{s}.basemaps.cartocdn.com/light_nolabels/{z}/{x}/{y}{r}.png").addTo(map);
 
@@ -17,10 +22,10 @@
     const microLayer = L.layerGroup().addTo(map);
     const countryInfo = new Map();
 
-    // Coordenadas manuales para etiquetas "rebeldes"
+    // Coordenadas manuales para etiquetas que salen movidas
     const manualCoords = { "Russia": [60, 95], "Norway": [62, 9] };
 
-    // Lista de Microestados (Círculos naranjas)
+    // Lista de Microestados para círculos naranjas
     const microList = [
         {id:"VAT", latlng:[41.902, 12.453], name:"Vaticano", reg:"Europe"},
         {id:"MCO", latlng:[43.738, 7.424], name:"Mónaco", reg:"Europe"},
@@ -32,6 +37,7 @@
     ];
 
     try {
+        // 3. CARGA DE DATOS
         const [geoRes, restRes] = await Promise.all([
             fetch("https://raw.githubusercontent.com/johan/world.geo.json/master/countries.geo.json"),
             fetch("https://restcountries.com/v3.1/all?fields=name,region,cca3,flags,population,area,languages")
@@ -62,6 +68,7 @@
             </div>`;
         }
 
+        // 4. FUNCIÓN DE ACTUALIZACIÓN (Dibuja todo)
         function updateMap(filter = "all") {
             if (geojsonLayer) map.removeLayer(geojsonLayer);
             labelsLayer.clearLayers();
@@ -71,7 +78,12 @@
                 style: (f) => {
                     const info = countryInfo.get(f.properties.name) || countryInfo.get(f.id);
                     const match = filter === "all" || (info && info.region === filter);
-                    return { fillColor: match ? "#1f6feb" : "#cccccc", fillOpacity: match ? 0.6 : 0.05, color: "white", weight: 1 };
+                    return { 
+                        fillColor: match ? "#1f6feb" : "#cccccc", 
+                        fillOpacity: match ? 0.6 : 0.05, 
+                        color: "white", 
+                        weight: 1 
+                    };
                 },
                 onEachFeature: (f, layer) => {
                     const info = countryInfo.get(f.properties.name) || countryInfo.get(f.id);
@@ -84,6 +96,7 @@
                         layer.on('mouseover', function() { this.setStyle({ fillColor: "#ffcc00", fillOpacity: 0.9 }); });
                         layer.on('mouseout', function() { geojsonLayer.resetStyle(this); });
 
+                        // MOSTRAR NOMBRES
                         if (namesVisible) {
                             const pos = manualCoords[f.properties.name] || layer.getBounds().getCenter();
                             L.marker(pos, {
@@ -95,11 +108,11 @@
                 }
             }).addTo(map);
 
-            // DIBUJAR CÍRCULOS NARANJAS (MICROESTADOS)
+            // DIBUJAR CÍRCULOS NARANJAS
             microList.forEach(m => {
                 if (filter === "all" || m.reg === filter) {
                     const circle = L.circleMarker(m.latlng, { radius: 6, fillColor: "#e67e22", color: "#fff", weight: 2, fillOpacity: 1 }).addTo(microLayer);
-                    const info = countryInfo.get(m.id);
+                    const info = countryInfo.get(m.id) || countryInfo.get(m.name);
                     if (info) circle.bindPopup(buildPopup(info));
                     
                     if (namesVisible) {
@@ -112,7 +125,7 @@
             });
         }
 
-        // EVENTOS
+        // 5. EVENTOS DE LOS BOTONES
         document.getElementById("continentSelect").onchange = (e) => {
             const val = e.target.value;
             updateMap(val);
@@ -133,5 +146,5 @@
         };
 
         updateMap();
-    } catch (e) { console.error("Error cargando el mapa:", e); }
+    } catch (e) { console.error("Error al cargar el mapa:", e); }
 })();

@@ -3,16 +3,25 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Mapa Interactivo de Europa</title>
+  <title>Mapa Interactivo Global</title>
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
   <link rel="stylesheet" href="paises.css">
 </head>
 <body>
 
 <div class="controls">
-  <button id="resetBtn">Reset</button>
-  <button id="toggleNamesBtn">Mostrar nombres de países</button>
-  <button id="toggleCapitalsBtn">Mostrar capitales</button>
+  <button id="resetBtn">Reset Mundo</button>
+  <button id="toggleNamesBtn">Mostrar nombres</button>
+  
+  <label for="continentSelect" style="font-size: 12px; font-weight: bold; margin-top: 5px;">Filtrar por Continente:</label>
+  <select id="continentSelect">
+    <option value="all">Todo el Mundo</option>
+    <option value="Europe">Europa</option>
+    <option value="Africa">África</option>
+    <option value="Americas">América</option>
+    <option value="Asia">Asia</option>
+    <option value="Oceania">Oceanía</option>
+  </select>
 </div>
 
 <div id="map"></div>

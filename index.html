@@ -2,61 +2,55 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <title>Sokrateka - Panel de Control</title>
+    <title>Sokrateka</title>
     <link rel="stylesheet" href="style_portal.css">
 </head>
 <body>
-    <div id="main-layout" class="sidebar-visible">
-        <aside id="sidebar">
-            <div class="sidebar-top">
-                <h2>🎓 Sokrateka</h2>
-                <button id="btn-toggle" title="Cerrar Menú">◀</button>
-            </div>
-            
-            <nav class="menu-nav">
-                <div class="category">🌍 Geografía</div>
-                <button onclick="cargarApp('Atlas/paises.html', 'Atlas Oficial')">Atlas Mapa</button>
-                <button onclick="cargarApp('Atlas/banderasJuego.html', 'Juego de Banderas')">Banderas</button>
-                <button onclick="cargarApp('Atlas.dev/banderasJuego.html', 'QA Banderas')" class="qa-btn">🛠️ Atlas QA</button>
+    <button id="btn-abrir" class="btn-float" style="display: none;">☰</button>
 
-                <div class="category">📐 Matemáticas</div>
-                <button onclick="cargarApp('Pitagoras/index.html', 'Pitágoras')">Pitágoras</button>
-            </nav>
+    <div id="contenedor-principal" class="menu-activo">
+        <aside id="sidebar-menu">
+            <div class="sidebar-card">
+                <div class="header-nav">
+                    <h2>🎓 Sokrateka</h2>
+                    <button id="btn-cerrar">✖</button>
+                </div>
+                
+                <nav>
+                    <p class="seccion">GEOGRAFÍA</p>
+                    <button onclick="ir('Atlas/paises.html')">🌍 Mapa Atlas</button>
+                    <button onclick="ir('Atlas/banderasJuego.html')">🚩 Juego Banderas</button>
+                    <button onclick="ir('Atlas.dev/banderasJuego.html')" class="dev">🛠️ QA Banderas</button>
+
+                    <p class="seccion">MATEMÁTICAS</p>
+                    <button onclick="ir('Pitagoras/index.html')">📐 Pitágoras</button>
+                </nav>
+            </div>
         </aside>
 
-        <main id="main-content">
-            <header class="content-header">
-                <button id="btn-open" style="display: none;">☰ Menú</button>
-                <h3 id="app-title">Bienvenido a Sokrateka</h3>
-            </header>
-            <section class="iframe-container">
-                <iframe id="app-frame" src="about:blank"></iframe>
-            </section>
+        <main id="contenido-app">
+            <iframe id="visor" src="Atlas/paises.html" frameborder="0"></iframe>
         </main>
     </div>
 
     <script>
-        const layout = document.getElementById('main-layout');
-        const btnToggle = document.getElementById('btn-toggle');
-        const btnOpen = document.getElementById('btn-open');
-        const frame = document.getElementById('app-frame');
-        const title = document.getElementById('app-title');
+        const contenedor = document.getElementById('contenedor-principal');
+        const visor = document.getElementById('visor');
+        const btnCerrar = document.getElementById('btn-cerrar');
+        const btnAbrir = document.getElementById('btn-abrir');
 
-        // Función para cambiar de aplicación
-        function cargarApp(url, nombre) {
-            frame.src = url;
-            title.textContent = nombre;
+        function ir(url) {
+            visor.src = url;
         }
 
-        // Lógica para contraer/expandir
-        btnToggle.onclick = () => {
-            layout.classList.replace('sidebar-visible', 'sidebar-hidden');
-            btnOpen.style.display = 'block';
+        btnCerrar.onclick = () => {
+            contenedor.classList.replace('menu-activo', 'menu-oculto');
+            btnAbrir.style.display = 'block';
         };
 
-        btnOpen.onclick = () => {
-            layout.classList.replace('sidebar-hidden', 'sidebar-visible');
-            btnOpen.style.display = 'none';
+        btnAbrir.onclick = () => {
+            contenedor.classList.replace('menu-oculto', 'menu-activo');
+            btnAbrir.style.display = 'none';
         };
     </script>
 </body>

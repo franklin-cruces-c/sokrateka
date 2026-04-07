@@ -1,59 +1,50 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="es">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Global Interactive Map</title>
-  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
-  <link rel="stylesheet" href="paises.css">
+    <meta charset="UTF-8">
+    <title>Global Interactive Map</title>
+    <link rel="stylesheet" href="style_mapa.css">
 </head>
 <body>
-
-<div class="controls" id="controlsContainer">
-  <button id="toggleMenu" class="menu-trigger">▼ Menu</button>
-  <div id="controlsContent" class="controls-content">
-    
-    <div class="nav-section">
-      <label class="label-tiny">Atlas Navigation:</label>
-      <select onchange="window.location.href=this.value" class="select-nav">
-        <option value="" selected disabled>Select map...</option>
-        <option value="index.html">🏠 Atlas Home</option>
-        <option value="paises.html">🌍 Countries</option>
-        <option value="capitales.html">🏙️ Capitals</option>
-        <option value="banderasJuego.html">🚩 Juego de Banderas</option>
-      </select>
+    <div id="map-control-group" class="leaflet-control leaflet-bar">
+        <button id="btn-reset" onclick="resetWorld()" title="Reset World">↺</button>
+        <button id="btn-names" onclick="toggleNames()" title="Show/Hide Names">🏷️</button>
     </div>
 
-    <div class="nav-section">
-      <label class="label-tiny">Language / Idioma:</label>
-      <select id="languageSelect" class="select-nav">
-        <option value="en" selected>🇺🇸 English</option>
-        <option value="es">🇪🇸 Español</option>
-      </select>
-    </div>
+    <div id="map"></div>
 
-    <hr class="separator">
+    <script>
+        // Diccionario de tooltips sincronizado con el portal
+        const i18n_tips = {
+            es: { reset: "Reiniciar Mundo", names: "Mostrar/Ocultar Nombres" },
+            en: { reset: "Reset World", names: "Show/Hide Names" }
+        };
 
-    <button id="resetBtn">Reset World</button>
-    <button id="toggleNamesBtn">Show names</button>
-    
-    <label for="continentSelect" class="label-tiny" id="labelFilter">Filter Continent:</label>
-    <select id="continentSelect" class="select-nav">
-      <option value="all">All World</option>
-      <option value="Europe">Europe</option>
-      <option value="Africa">Africa</option>
-      <option value="Americas">Americas</option>
-      <option value="Asia">Asia</option>
-      <option value="Oceania">Oceania</option>
-    </select>
+        // Escucha al Portal Sokrateka para el idioma global
+        window.addEventListener('message', (event) => {
+            if (event.data.tipo === 'SET_LANGUAGE') {
+                const lang = event.data.lang;
+                const tips = i18n_tips[lang] || i18n_tips.en;
+                
+                // Actualiza el título que sale al pasar el mouse
+                document.getElementById('btn-reset').title = tips.reset;
+                document.getElementById('btn-names').title = tips.names;
+                
+                // Si tienes una función propia para traducir los nombres de los países:
+                if (typeof setLanguage === 'function') setLanguage(lang);
+            }
+        });
 
-    <button onclick="window.location.href='../index.html'" class="btn-exit" id="btnExit">🏠 Main Menu</button>
-  </div>
-</div>
+        // Funciones de acción
+        function resetWorld() {
+            // Inserta aquí tu lógica original de reset
+            console.log("Reiniciando mundo...");
+        }
 
-<div id="map"></div>
-
-<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-<script src="paises.js"></script>
+        function toggleNames() {
+            // Inserta aquí tu lógica original de mostrar/ocultar nombres
+            console.log("Cambiando visibilidad de nombres...");
+        }
+    </script>
 </body>
 </html>

@@ -9,6 +9,7 @@
     let startTime;
     let gameSettings = {};
     let currentCorrectAnswer = "";
+    let mistakes = []; // Para las recomendaciones de estudio
     const COLORS = ['#ff2e63', '#ffd700', '#08d9d6'];
 
     async function init() {
@@ -16,11 +17,11 @@
             const res = await fetch("https://restcountries.com/v3.1/all?fields=name,flags,translations,region");
             allCountries = await res.json();
             document.getElementById('start-game-btn').onclick = startGame;
-            document.getElementById('btn-stop').onclick = () => location.reload();
+            document.getElementById('btn-stop').onclick = () => endGame("Juego terminado");
             document.getElementById('btn-save-quit').onclick = saveGame;
             document.getElementById('next-btn').onclick = () => newRound();
             document.getElementById('skip-btn').onclick = () => newRound();
-        } catch (e) { alert("Error de conexión con la API de países."); }
+        } catch (e) { console.error("Error API:", e); }
     }
 
     function startGame() {
@@ -40,7 +41,8 @@
             players.push({
                 name: document.getElementById(`p${i}-name`).value || `Jugador ${i}`,
                 score: 0,
-                color: COLORS[i-1]
+                color: COLORS[i-1],
+                mistakes: []
             });
         }
 
@@ -66,9 +68,7 @@
         attemptsInRound = 0;
         flagsCount++;
         
-        if(gameSettings.flagLimit > 0 && flagsCount > gameSettings.flagLimit) {
-            return endGame("¡Reto completado!");
-        }
+        if(gameSettings.flagLimit > 0 && flagsCount > gameSettings.flagLimit) return endGame("Reto completado");
 
         document.getElementById('flag-counter').textContent = `🚩 ${flagsCount}${gameSettings.flagLimit > 0 ? '/'+gameSettings.flagLimit : ''}`;
         document.getElementById('feedback').textContent = "";
@@ -92,52 +92,56 @@
         opts.sort(() => Math.random() - 0.5).forEach(o => {
             const btn = document.createElement('button');
             btn.className = 'option';
-            btn.textContent = o;
+            btn.innerHTML = `<span>${o}</span>`;
             btn.onclick = () => checkAnswer(o, btn);
             grid.appendChild(btn);
         });
-
         updateScoreboard();
     }
 
     function checkAnswer(selected, btn) {
         btn.disabled = true;
-        btn.style.borderColor = players[activeP].color;
-        btn.style.borderWidth = "4px";
+        
+        // Agregar etiqueta del jugador al botón
+        const tag = document.createElement('span');
+        tag.className = 'player-tag';
+        tag.style.backgroundColor = players[activeP].color;
+        tag.textContent = players[activeP].name;
+        btn.appendChild(tag);
 
         if(selected === currentCorrectAnswer) {
             btn.style.background = "#2ea44f";
             btn.style.color = "white";
             players[activeP].score += 10;
-            document.getElementById('feedback').textContent = `🌟 ¡Excelente, ${players[activeP].name}!`;
+            document.getElementById('feedback').textContent = `🌟 ¡Muy bien, ${players[activeP].name}!`;
             revealAndStop();
         } else {
             btn.style.background = "#ff4d4d";
             btn.style.color = "white";
-            document.getElementById('feedback').textContent = `❌ ${players[activeP].name} se equivocó.`;
+            players[activeP].mistakes.push(currentCorrectAnswer);
+            document.getElementById('feedback').textContent = `❌ ${players[activeP].name} falló.`;
             handleTurnChange();
         }
     }
 
     function handleTurnChange() {
         attemptsInRound++;
+        activeP = (activeP + 1) % gameSettings.mode; // El turno siempre pasa al siguiente
+        
         if (attemptsInRound >= gameSettings.mode) {
             document.getElementById('feedback').textContent = "⚠️ Turnos agotados.";
             revealAndStop();
         } else {
-            activeP = (activeP + 1) % gameSettings.mode;
             updateScoreboard();
         }
     }
 
     function revealAndStop() {
-        // Deshabilitar todo y mostrar el botón de siguiente
         document.querySelectorAll('.option').forEach(btn => {
             btn.disabled = true;
-            if(btn.textContent === currentCorrectAnswer) {
+            if(btn.firstChild.textContent === currentCorrectAnswer) {
                 btn.style.background = "#2ea44f";
                 btn.style.color = "white";
-                btn.style.borderColor = "#1a7f37";
             }
         });
         document.getElementById('next-btn').style.display = "block";
@@ -147,7 +151,7 @@
     }
 
     document.getElementById('pass-btn').onclick = () => {
-        document.getElementById('feedback').textContent = `${players[activeP].name} pasó.`;
+        document.getElementById('feedback').textContent = `${players[activeP].name} pasó el turno.`;
         handleTurnChange();
     };
 
@@ -161,16 +165,30 @@
     }
 
     function saveGame() {
-        const state = { players, flagsCount, settings: gameSettings };
-        localStorage.setItem('atlas_quiz_save', JSON.stringify(state));
-        alert("Configuración guardada en este navegador.");
+        localStorage.setItem('atlas_quiz_save', JSON.stringify({ players, flagsCount, gameSettings }));
+        alert("¡Progreso guardado!");
     }
 
     function endGame(reason) {
         clearInterval(timerInterval);
-        const scores = players.map(p => `${p.name}: ${p.score}`).join('\n');
-        alert(`${reason}\n\nResultados Finales:\n${scores}`);
-        location.reload();
+        document.getElementById('game-screen').style.display = 'none';
+        const resultsScreen = document.getElementById('results-screen');
+        resultsScreen.style.display = 'block';
+
+        const statsCont = document.getElementById('final-stats-container');
+        statsCont.innerHTML = players.map(p => `
+            <div class="result-row">
+                <strong style="color:${p.color}">${p.name}</strong>
+                <span>${p.score} Puntos</span>
+            </div>
+        `).join('');
+
+        const studyCont = document.getElementById('study-recommendations');
+        studyCont.innerHTML = players.map(p => {
+            if(p.mistakes.length === 0) return `<div class="study-item">✅ <strong>${p.name}</strong>: ¡Perfecto! No tienes fallos.</div>`;
+            const uniqueMistakes = [...new Set(p.mistakes)].slice(0, 3);
+            return `<div class="study-item">📖 <strong>${p.name}</strong> debe repasar: ${uniqueMistakes.join(', ')}...</div>`;
+        }).join('');
     }
 
     init();

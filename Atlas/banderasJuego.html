@@ -36,6 +36,7 @@
                     <select id="timeLimit" class="custom-select">
                         <option value="0">Sin límite</option>
                         <option value="60">1 Minuto</option>
+                        <option value="180">3 Minutos</option>
                         <option value="300">5 Minutos</option>
                     </select>
                 </div>
@@ -45,14 +46,15 @@
                         <option value="0">Infinitas</option>
                         <option value="10">10</option>
                         <option value="20">20</option>
+                        <option value="50">50</option>
                     </select>
                 </div>
             </div>
 
             <div class="players-grid" id="names-container">
-                <div class="input-box"><label>1°</label><input type="text" id="p1-name" value="Nicole"></div>
-                <div class="input-box"><label>2°</label><input type="text" id="p2-name" value="Nidia"></div>
-                <div class="input-box"><label>3°</label><input type="text" id="p3-name" value="Franklin"></div>
+                <div class="input-box p1-border"><label>1°</label><input type="text" id="p1-name" value="Nicole"></div>
+                <div class="input-box p2-border"><label>2°</label><input type="text" id="p2-name" value="Nidia"></div>
+                <div class="input-box p3-border"><label>3°</label><input type="text" id="p3-name" value="Franklin"></div>
             </div>
 
             <button id="start-game-btn" class="btn-play">¡Empezar Desafío!</button>
@@ -62,7 +64,10 @@
             <div class="game-header">
                 <div id="timer-display" class="stat-badge">⏱️ 00:00</div>
                 <div id="scoreboard" class="scoreboard-layout"></div>
-                <div id="counter-display" class="stat-badge">🚩 0/0</div>
+                <div class="header-actions">
+                    <button id="btn-save-quit" class="btn-mini save">💾 Guardar</button>
+                    <button id="btn-stop" class="btn-mini stop">🛑 Salir</button>
+                </div>
             </div>
 
             <div class="main-card game-box">
@@ -72,9 +77,10 @@
                 <div class="action-buttons">
                     <button id="pass-btn" class="btn-secondary">🤝 Ceder Turno</button>
                     <button id="skip-btn" class="btn-secondary">⏭️ Saltar Bandera</button>
-                    <button id="next-btn" class="btn-play" style="display: none;">Siguiente ✨</button>
+                    <button id="next-btn" class="btn-play" style="display: none;">Siguiente Bandera ✨</button>
                 </div>
                 <div id="feedback" class="feedback-msg"></div>
+                <div id="flag-counter" class="stat-badge" style="margin-top:15px">🚩 1/10</div>
             </div>
         </div>
     </div>

@@ -5,26 +5,30 @@
     <title>Atlas Interactivo</title>
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+    <script src="paises.js"></script>
+
     <style>
         body, html { margin: 0; padding: 0; height: 100%; overflow: hidden; }
         #map { height: 100vh; width: 100%; background: #aad3df; }
         
-        #map-control-group {
+        /* Botones pequeños junto al Zoom */
+        #map-actions {
             position: absolute; top: 80px; left: 10px; z-index: 1000;
             display: flex; flex-direction: column; box-shadow: 0 1px 5px rgba(0,0,0,0.4);
-            border-radius: 4px; overflow: hidden;
+            border-radius: 4px; overflow: hidden; background: white;
         }
-        #map-control-group button {
+        #map-actions button {
             background: white; border: none; border-bottom: 1px solid #ccc;
             width: 30px; height: 30px; font-size: 16px; cursor: pointer;
             display: flex; justify-content: center; align-items: center;
         }
-        #map-control-group button:hover { background: #f4f4f4; }
+        #map-actions button:hover { background: #f4f4f4; }
     </style>
 </head>
 <body>
 
-    <div id="map-control-group">
+    <div id="map-actions">
         <button id="btn-reset" onclick="resetMapa()" title="Reiniciar">↺</button>
         <button id="btn-names" onclick="toggleNombres()" title="Nombres">🏷️</button>
     </div>
@@ -32,32 +36,34 @@
     <div id="map"></div>
 
     <script>
-        const i18n = {
-            es: { reset: "Reiniciar Mundo", names: "Mostrar/Ocultar Nombres" },
-            en: { reset: "Reset World", names: "Show/Hide Names" }
-        };
-
-        // INICIALIZACIÓN DEL MAPA (Asegúrate de que tus puntos naranjas carguen aquí)
+        // Inicialización básica del mapa
         var map = L.map('map').setView([20, 0], 2);
         L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
             attribution: '&copy; OpenStreetMap'
         }).addTo(map);
 
-        // ESCUCHAR AL PORTAL SOKRATEKA
+        // Escucha del portal para el idioma
         window.addEventListener('message', (event) => {
             if (event.data.tipo === 'SET_LANGUAGE') {
                 const lang = event.data.lang;
-                const texts = i18n[lang] || i18n.en;
-                document.getElementById('btn-reset').title = texts.reset;
-                document.getElementById('btn-names').title = texts.names;
+                document.getElementById('btn-reset').title = (lang === 'es') ? "Reiniciar Mundo" : "Reset World";
+                document.getElementById('btn-names').title = (lang === 'es') ? "Mostrar Nombres" : "Show Names";
                 
-                // Llama a tu función original de traducción si la tienes
-                if(typeof setLanguage === 'function') setLanguage(lang);
+                // Si tu archivo paises.js tiene una función para cambiar el idioma:
+                if (typeof setLanguage === 'function') setLanguage(lang);
             }
         });
 
-        function resetMapa() { map.setView([20, 0], 2); }
-        function toggleNombres() { console.log("Toggle nombres"); }
+        // Funciones conectadas a los botones
+        function resetMapa() {
+            // Si en paises.js tienes una función específica para reset, úsala aquí
+            map.setView([20, 0], 2);
+        }
+
+        function toggleNombres() {
+            // Si en paises.js tienes la lógica de etiquetas, llámala aquí
+            console.log("Cambiando etiquetas...");
+        }
     </script>
 </body>
 </html>

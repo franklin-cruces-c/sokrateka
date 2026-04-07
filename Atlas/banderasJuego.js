@@ -1,88 +1,64 @@
 (async function() {
     let countries = [];
     let currentCountry = null;
-    let currentLang = 'es';
-    let gameMode = 1; // 1 o 2 jugadores
-    let players = [{ name: '', score: 0 }, { name: '', score: 0 }];
-    let activePlayerIndex = 0;
+    let players = [];
+    let activeP = 0;
+    let gameMode = 1;
     let isSecondAttempt = false;
 
-    const i18n = {
-        es: {
-            q: "¿Qué país es?", next: "Siguiente", correct: "¡Correcto!", 
-            wrong: "Incorrecto", wrongDuel: "Incorrecto, intenta el otro...",
-            final: "La respuesta era: ", turn: "Turno de: ", score: "Puntos: "
-        },
-        en: {
-            q: "Which country is it?", next: "Next", correct: "Correct!", 
-            wrong: "Wrong", wrongDuel: "Wrong, other player's turn...",
-            final: "The answer was: ", turn: "Turn of: ", score: "Score: "
-        }
-    };
-
     async function init() {
+        // Carga multilenguaje desde la API de tu Atlas
         const res = await fetch("https://restcountries.com/v3.1/all?fields=name,flags,translations");
         countries = await res.json();
 
-        // Mostrar/Ocultar segundo nombre según el modo
         document.getElementById('gameMode').onchange = (e) => {
-            const display = e.target.value === "2" ? "block" : "none";
-            document.getElementById('p2-name').style.display = display;
+            const mode = parseInt(e.target.value);
+            document.getElementById('p2-name').style.display = mode >= 2 ? 'block' : 'none';
+            document.getElementById('p3-name').style.display = mode >= 3 ? 'block' : 'none';
         };
 
         document.getElementById('start-game-btn').onclick = startGame;
     }
 
     function startGame() {
-        currentLang = document.getElementById('gameLanguage').value;
         gameMode = parseInt(document.getElementById('gameMode').value);
-        players[0].name = document.getElementById('p1-name').value || "P1";
-        players[1].name = document.getElementById('p2-name').value || "P2";
-
+        for(let i=1; i<=gameMode; i++) {
+            players.push({
+                name: document.getElementById(`p${i}-name`).value || `Explorador ${i}`,
+                score: 0,
+                learned: 0,
+                toDedicateTime: {} // Antes llamado "difíciles"
+            });
+        }
         document.getElementById('setup-screen').style.display = 'none';
         document.getElementById('game-screen').style.display = 'block';
-        
-        if(gameMode === 2) document.getElementById('p2-hub').style.display = 'block';
-        
-        updateUI();
+        renderScoreboard();
         newRound();
     }
 
-    function updateUI() {
-        const t = i18n[currentLang];
-        document.getElementById('p1-label').textContent = players[0].name;
-        document.getElementById('p2-label').textContent = players[1].name;
-        document.getElementById('question-text').textContent = t.q;
-        document.getElementById('next-btn').textContent = t.next;
-        refreshTurnDisplay();
-    }
-
-    function refreshTurnDisplay() {
-        const t = i18n[currentLang];
-        if (gameMode === 2) {
-            document.getElementById('turn-display').textContent = t.turn + players[activePlayerIndex].name;
-            document.getElementById('p1-hub').className = activePlayerIndex === 0 ? 'p-score active-turn' : 'p-score';
-            document.getElementById('p2-hub').className = activePlayerIndex === 1 ? 'p-score active-turn' : 'p-score';
-        } else {
-            document.getElementById('turn-display').textContent = t.score + players[0].score;
-            document.getElementById('p1-hub').className = 'p-score active-turn';
-        }
+    function renderScoreboard() {
+        const container = document.getElementById('scoreboard');
+        container.innerHTML = players.map((p, i) => `
+            <div class="p-score ${i === activeP ? 'active-turn' : ''}">
+                <div style="font-size:0.8rem; color:#666">${p.name}</div>
+                <div style="font-weight:bold">✨ ${p.score}</div>
+            </div>
+        `).join('');
     }
 
     function newRound() {
         isSecondAttempt = false;
-        document.getElementById('feedback').textContent = "";
+        document.getElementById('feedback').innerHTML = "";
         document.getElementById('next-btn').style.display = "none";
         document.getElementById('options-grid').innerHTML = "";
         
         currentCountry = countries[Math.floor(Math.random() * countries.length)];
-        const nameCorrect = currentLang === 'es' ? (currentCountry.translations.spa.common) : currentCountry.name.common;
+        const correctName = currentCountry.translations.spa.common; // Español por defecto
         document.getElementById('flag-img').src = currentCountry.flags.png;
 
-        let options = [nameCorrect];
+        let options = [correctName];
         while(options.length < 4) {
-            let rand = countries[Math.floor(Math.random() * countries.length)];
-            let n = currentLang === 'es' ? rand.translations.spa.common : rand.name.common;
+            let n = countries[Math.floor(Math.random() * countries.length)].translations.spa.common;
             if(!options.includes(n)) options.push(n);
         }
         options.sort(() => Math.random() - 0.5);
@@ -91,48 +67,64 @@
             const btn = document.createElement('button');
             btn.className = 'option';
             btn.textContent = opt;
-            btn.onclick = () => checkAnswer(btn, opt, nameCorrect);
+            btn.onclick = () => check(btn, opt, correctName);
             document.getElementById('options-grid').appendChild(btn);
         });
     }
 
-    function checkAnswer(btn, selected, correct) {
-        const t = i18n[currentLang];
-        if (selected === correct) {
+    function check(btn, selected, correct) {
+        if(selected === correct) {
             btn.classList.add('correct');
-            players[activePlayerIndex].score += 10;
-            document.getElementById('feedback').textContent = "✅ " + t.correct;
-            finishRound(true);
+            players[activeP].score += 10;
+            players[activeP].learned++;
+            document.getElementById('feedback').innerHTML = "🌟 ¡Qué buena memoria!";
+            finish();
         } else {
             btn.classList.add('wrong');
             btn.disabled = true;
+            players[activeP].toDedicateTime[correct] = (players[activeP].toDedicateTime[correct] || 0) + 1;
 
-            if (gameMode === 2 && !isSecondAttempt) {
+            if(gameMode > 1 && !isSecondAttempt) {
                 isSecondAttempt = true;
-                document.getElementById('feedback').textContent = "❌ " + t.wrongDuel;
-                activePlayerIndex = activePlayerIndex === 0 ? 1 : 0;
-                refreshTurnDisplay();
+                document.getElementById('feedback').innerHTML = "¡Casi! ¿Alguien más quiere intentarlo?";
+                activeP = (activeP + 1) % gameMode;
+                renderScoreboard();
             } else {
-                document.getElementById('feedback').textContent = (gameMode === 2 ? "" : "❌ ") + t.final + correct;
-                players[activePlayerIndex].score = Math.max(0, players[activePlayerIndex].score - 5);
-                finishRound(true);
+                document.getElementById('feedback').innerHTML = `Este es <b>${correct}</b>. ¡Apuntado para la próxima!`;
+                finish();
             }
         }
-        document.getElementById('p1-score').textContent = players[0].score;
-        document.getElementById('p2-score').textContent = players[1].score;
+        renderScoreboard();
     }
 
-    function finishRound(done) {
-        if(done) {
-            document.querySelectorAll('.option').forEach(b => b.disabled = true);
-            document.getElementById('next-btn').style.display = "block";
-        }
+    function finish() {
+        document.querySelectorAll('.option').forEach(b => b.disabled = true);
+        document.getElementById('next-btn').style.display = "block";
     }
 
+    window.showStats = () => {
+        const body = document.getElementById('stats-body');
+        body.innerHTML = players.map(p => {
+            const list = Object.entries(p.toDedicateTime)
+                .sort((a,b) => b[1] - a[1]).slice(0,3).map(x => x[0]).join(", ");
+            return `
+                <div style="margin-bottom:15px">
+                    <b>${p.name}</b><br>
+                    Países conocidos: ${p.learned}<br>
+                    <span style="color:#1f6feb; font-size:0.9rem">
+                        💡 Próximo objetivo: ${list || "¡Nuevas banderas!"}
+                    </span>
+                </div>
+            `;
+        }).join("<hr>");
+        document.getElementById('stats-modal').style.display = 'flex';
+    };
+
+    window.closeStats = () => document.getElementById('stats-modal').style.display = 'none';
     document.getElementById('next-btn').onclick = () => {
-        if(gameMode === 2) activePlayerIndex = activePlayerIndex === 0 ? 1 : 0;
+        activeP = (activeP + 1) % gameMode;
         newRound();
-        refreshTurnDisplay();
+        renderScoreboard();
     };
 
     init();

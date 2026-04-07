@@ -22,18 +22,15 @@
             flagLimit: parseInt(document.getElementById('flagLimit').value)
         };
 
-        // Filtrar países
         filteredCountries = gameSettings.continent === "all" 
             ? allCountries 
             : allCountries.filter(c => c.region === gameSettings.continent);
 
-        // Inicializar jugadores
         players = [];
         for(let i=1; i<=gameSettings.mode; i++) {
             players.push({
-                name: document.getElementById(`p${i}-name`).value || `P${i}`,
-                score: 0,
-                timeTotal: 0
+                name: document.getElementById(`p${i}-name`).value || `Player ${i}`,
+                score: 0
             });
         }
 
@@ -48,12 +45,7 @@
         startTime = Date.now();
         timerInterval = setInterval(() => {
             const elapsed = Math.floor((Date.now() - startTime) / 1000);
-            
-            // Si hay límite de tiempo
-            if(gameSettings.timeLimit > 0 && elapsed >= gameSettings.timeLimit) {
-                endGame("¡Tiempo agotado!");
-            }
-
+            if(gameSettings.timeLimit > 0 && elapsed >= gameSettings.timeLimit) endGame("¡Tiempo agotado!");
             const mins = Math.floor(elapsed / 60).toString().padStart(2, '0');
             const secs = (elapsed % 60).toString().padStart(2, '0');
             document.getElementById('timer-display').textContent = `⏱️ ${mins}:${secs}`;
@@ -62,15 +54,12 @@
 
     function newRound() {
         flagsCount++;
-        // Verificar límite de banderas
-        if(gameSettings.flagLimit > 0 && flagsCount > gameSettings.flagLimit) {
-            return endGame("¡Reto completado!");
-        }
+        if(gameSettings.flagLimit > 0 && flagsCount > gameSettings.flagLimit) return endGame("¡Reto completado!");
 
         document.getElementById('counter-display').textContent = `🚩 ${flagsCount}${gameSettings.flagLimit > 0 ? '/'+gameSettings.flagLimit : ''}`;
         document.getElementById('feedback').textContent = "";
         document.getElementById('next-btn').style.display = "none";
-        document.getElementById('skip-btn').style.display = "block";
+        document.getElementById('pass-btn').style.display = gameSettings.mode > 1 ? "block" : "none";
         
         const target = filteredCountries[Math.floor(Math.random() * filteredCountries.length)];
         const correct = target.translations.spa.common;
@@ -78,7 +67,6 @@
 
         const grid = document.getElementById('options-grid');
         grid.innerHTML = "";
-
         let opts = [correct];
         while(opts.length < 4) {
             let n = allCountries[Math.floor(Math.random() * allCountries.length)].translations.spa.common;
@@ -89,45 +77,41 @@
             const btn = document.createElement('button');
             btn.className = 'option';
             btn.textContent = o;
-            btn.onclick = () => checkAnswer(o, correct, btn);
+            btn.onclick = () => {
+                if(o === correct) {
+                    btn.style.background = "#2ea44f"; btn.style.color = "white";
+                    players[activeP].score += 10;
+                    document.getElementById('feedback').textContent = "🌟 ¡Correcto!";
+                    finishRound();
+                } else {
+                    btn.style.background = "#cf222e"; btn.style.color = "white";
+                    if(gameSettings.mode > 1) {
+                        activeP = (activeP + 1) % gameSettings.mode;
+                        document.getElementById('feedback').textContent = `¡Casi! Turno de ${players[activeP].name}`;
+                        updateScoreboard();
+                    } else {
+                        document.getElementById('feedback').textContent = `Es ${correct}`;
+                        finishRound();
+                    }
+                }
+            };
             grid.appendChild(btn);
         });
-
         updateScoreboard();
     }
 
-    function checkAnswer(selected, correct, btn) {
-        if(selected === correct) {
-            btn.style.background = "#2ea44f";
-            btn.style.color = "white";
-            players[activeP].score += 10;
-            document.getElementById('feedback').textContent = "🌟 ¡Correcto!";
-            showNext();
-        } else {
-            btn.style.background = "#cf222e";
-            btn.style.color = "white";
-            // En modo multijugador, pasa el turno al fallar
-            if(gameSettings.mode > 1) {
-                activeP = (activeP + 1) % gameSettings.mode;
-                document.getElementById('feedback').textContent = `¡Casi! Turno de ${players[activeP].name}`;
-                updateScoreboard();
-            } else {
-                document.getElementById('feedback').textContent = `Es ${correct}`;
-                showNext();
-            }
-        }
-    }
+    // NUEVA FUNCIÓN: CEDER TURNO
+    document.getElementById('pass-btn').onclick = () => {
+        activeP = (activeP + 1) % gameSettings.mode;
+        document.getElementById('feedback').textContent = `Turno cedido a ${players[activeP].name}`;
+        updateScoreboard();
+    };
 
-    function showNext() {
+    function finishRound() {
         document.querySelectorAll('.option').forEach(b => b.disabled = true);
         document.getElementById('next-btn').style.display = "block";
-        document.getElementById('skip-btn').style.display = "none";
+        document.getElementById('pass-btn').style.display = "none";
     }
-
-    document.getElementById('skip-btn').onclick = () => {
-        activeP = (activeP + 1) % gameSettings.mode;
-        newRound();
-    };
 
     document.getElementById('next-btn').onclick = () => {
         activeP = (activeP + 1) % gameSettings.mode;
@@ -145,7 +129,7 @@
 
     function endGame(reason) {
         clearInterval(timerInterval);
-        alert(`${reason}\nNicole: ${players[0].score} puntos.`);
+        alert(`${reason}\nResumen: ${players.map(p => p.name + ": " + p.score).join(", ")}`);
         location.reload();
     }
 

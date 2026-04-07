@@ -9,7 +9,6 @@
     let startTime;
     let gameSettings = {};
     let currentCorrectAnswer = "";
-    let mistakes = []; // Para las recomendaciones de estudio
     const COLORS = ['#ff2e63', '#ffd700', '#08d9d6'];
 
     async function init() {
@@ -20,7 +19,11 @@
             document.getElementById('btn-stop').onclick = () => endGame("Juego terminado");
             document.getElementById('btn-save-quit').onclick = saveGame;
             document.getElementById('next-btn').onclick = () => newRound();
-            document.getElementById('skip-btn').onclick = () => newRound();
+            document.getElementById('skip-btn').onclick = () => {
+                // Si saltan la bandera, todos deben estudiarla
+                players.forEach(p => p.mistakes.push(currentCorrectAnswer));
+                newRound();
+            };
         } catch (e) { console.error("Error API:", e); }
     }
 
@@ -48,7 +51,6 @@
 
         document.getElementById('setup-screen').style.display = 'none';
         document.getElementById('game-screen').style.display = 'block';
-        
         startTimer();
         newRound();
     }
@@ -67,13 +69,12 @@
     function newRound() {
         attemptsInRound = 0;
         flagsCount++;
-        
         if(gameSettings.flagLimit > 0 && flagsCount > gameSettings.flagLimit) return endGame("Reto completado");
 
         document.getElementById('flag-counter').textContent = `🚩 ${flagsCount}${gameSettings.flagLimit > 0 ? '/'+gameSettings.flagLimit : ''}`;
         document.getElementById('feedback').textContent = "";
         document.getElementById('next-btn').style.display = "none";
-        document.getElementById('pass-btn').style.display = gameSettings.mode > 1 ? "block" : "none";
+        document.getElementById('pass-btn').style.display = "block";
         document.getElementById('skip-btn').style.display = "block";
         
         const target = filteredCountries[Math.floor(Math.random() * filteredCountries.length)];
@@ -101,8 +102,6 @@
 
     function checkAnswer(selected, btn) {
         btn.disabled = true;
-        
-        // Agregar etiqueta del jugador al botón
         const tag = document.createElement('span');
         tag.className = 'player-tag';
         tag.style.backgroundColor = players[activeP].color;
@@ -113,7 +112,7 @@
             btn.style.background = "#2ea44f";
             btn.style.color = "white";
             players[activeP].score += 10;
-            document.getElementById('feedback').textContent = `🌟 ¡Muy bien, ${players[activeP].name}!`;
+            document.getElementById('feedback').textContent = `🌟 ¡Bravo, ${players[activeP].name}!`;
             revealAndStop();
         } else {
             btn.style.background = "#ff4d4d";
@@ -126,8 +125,7 @@
 
     function handleTurnChange() {
         attemptsInRound++;
-        activeP = (activeP + 1) % gameSettings.mode; // El turno siempre pasa al siguiente
-        
+        activeP = (activeP + 1) % gameSettings.mode;
         if (attemptsInRound >= gameSettings.mode) {
             document.getElementById('feedback').textContent = "⚠️ Turnos agotados.";
             revealAndStop();
@@ -151,7 +149,9 @@
     }
 
     document.getElementById('pass-btn').onclick = () => {
-        document.getElementById('feedback').textContent = `${players[activeP].name} pasó el turno.`;
+        // Ceder turno ahora cuenta como fallo para las estadísticas
+        players[activeP].mistakes.push(currentCorrectAnswer);
+        document.getElementById('feedback').textContent = `${players[activeP].name} no supo y cedió.`;
         handleTurnChange();
     };
 
@@ -172,8 +172,7 @@
     function endGame(reason) {
         clearInterval(timerInterval);
         document.getElementById('game-screen').style.display = 'none';
-        const resultsScreen = document.getElementById('results-screen');
-        resultsScreen.style.display = 'block';
+        document.getElementById('results-screen').style.display = 'block';
 
         const statsCont = document.getElementById('final-stats-container');
         statsCont.innerHTML = players.map(p => `
@@ -185,9 +184,9 @@
 
         const studyCont = document.getElementById('study-recommendations');
         studyCont.innerHTML = players.map(p => {
-            if(p.mistakes.length === 0) return `<div class="study-item">✅ <strong>${p.name}</strong>: ¡Perfecto! No tienes fallos.</div>`;
-            const uniqueMistakes = [...new Set(p.mistakes)].slice(0, 3);
-            return `<div class="study-item">📖 <strong>${p.name}</strong> debe repasar: ${uniqueMistakes.join(', ')}...</div>`;
+            if(p.mistakes.length === 0) return `<div class="study-item">✅ <strong>${p.name}</strong>: ¡Nivel Experto! Sin errores.</div>`;
+            const uniqueMistakes = [...new Set(p.mistakes)];
+            return `<div class="study-item">📖 <strong>${p.name}</strong>, te faltó conocer: <br>${uniqueMistakes.join(', ')}.</div>`;
         }).join('');
     }
 

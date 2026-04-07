@@ -3,48 +3,57 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Atlas Quiz - Aventura de Banderas</title>
+    <title>Atlas Quiz - Entrenamiento Portable</title>
     <link rel="stylesheet" href="banderasJuego.css">
 </head>
 <body>
     <div class="game-container">
         <div id="setup-screen" class="quiz-card">
-            <h2>✨ ¡Aprender es una Aventura!</h2>
-            <p>Elige cuántos exploradores se unen hoy:</p>
+            <h2 id="setup-title">✨ ¡Aprender es una Aventura!</h2>
+            <p>Elige tu equipo de exploradores:</p>
             
             <div class="input-group">
                 <select id="gameMode" class="nav-select">
                     <option value="1">1 Explorador</option>
                     <option value="2">Duo de Exploradores</option>
-                    <option value="3" selected>Equipo de 3 (¡Toda la familia!)</option>
+                    <option value="3" selected>Equipo de 3 Exploradores</option>
                 </select>
             </div>
 
-            <div class="input-group" id="names-container">
+            <div class="names-grid" id="names-container">
                 <input type="text" id="p1-name" placeholder="Explorador 1" value="Franklin">
                 <input type="text" id="p2-name" placeholder="Explorador 2" value="Nidia">
                 <input type="text" id="p3-name" placeholder="Explorador 3" value="Hija">
             </div>
 
             <button id="start-game-btn" class="next-btn">¡Empezar a Descubrir!</button>
+
+            <div class="data-management">
+                <hr style="border:0; border-top:1px solid #eee; margin:20px 0;">
+                <p style="font-size:0.8rem; color:#666; margin-bottom:10px;">Gestión de Datos (Portable)</p>
+                <div class="data-btns">
+                    <button onclick="saveGame()" class="btn-data btn-save">💾 Guardar Partida</button>
+                    <button onclick="clearStatsOnly()" class="btn-data btn-warning">📊 Reiniciar Puntos</button>
+                    <button onclick="resetEverything()" class="btn-data btn-danger">🗑️ Borrar Todo</button>
+                </div>
+                <div id="save-status" style="font-size:0.8rem; margin-top:5px;"></div>
+            </div>
         </div>
 
         <div id="game-screen" style="display: none;">
             <div class="header-game">
                 <select onchange="window.location.href=this.value" class="nav-select">
                     <option value="" disabled selected>Navegación...</option>
-                    <option value="index.html">🏠 Inicio</option>
-                    <option value="paises.html">🌍 Mapa Atlas</option>
+                    <option value="index.html">🏠 Inicio Atlas</option>
+                    <option value="paises.html">🌍 Mapa</option>
                 </select>
-                <button onclick="showStats()" class="btn-stats">📈 Nuestro Progreso</button>
+                <button onclick="showStats()" class="btn-stats">📈 Progreso Equipo</button>
             </div>
 
             <div id="scoreboard" class="scoreboard-triple"></div>
 
             <div class="quiz-card main-quiz">
-                <div class="flag-container">
-                    <img id="flag-img" src="" alt="Bandera por descubrir">
-                </div>
+                <div class="flag-container"><img id="flag-img" src="" alt="Bandera por descubrir"></div>
                 <h2 id="question-text">¿Qué país estamos conociendo?</h2>
                 <div id="options-grid" class="options-grid"></div>
                 <div id="feedback" class="feedback"></div>

@@ -1,31 +1,68 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="es">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Atlas Quiz - Banderas</title>
+    <title>Atlas Quiz - Duelo de Banderas</title>
     <link rel="stylesheet" href="banderasJuego.css">
 </head>
 <body>
     <div class="game-container">
-        <div class="header">
-            <select onchange="window.location.href=this.value" class="nav-select">
-                <option value="" disabled selected>Navigation...</option>
-                <option value="index.html">🏠 Home</option>
-                <option value="paises.html">🌍 Map</option>
-            </select>
-            <div class="score">Score: <span id="score">0</span></div>
+        <div id="setup-screen" class="quiz-card">
+            <h2 id="setup-title">Configuración del Juego</h2>
+            
+            <div class="input-group">
+                <label id="label-lang">Idioma / Language:</label>
+                <select id="gameLanguage" class="nav-select">
+                    <option value="es" selected>Español</option>
+                    <option value="en">English</option>
+                </select>
+            </div>
+
+            <div class="input-group">
+                <label id="label-mode">Modo de Juego:</label>
+                <select id="gameMode" class="nav-select">
+                    <option value="1">1 Jugador</option>
+                    <option value="2">2 Jugadores (Duelo)</option>
+                </select>
+            </div>
+
+            <div class="input-group" id="names-container">
+                <input type="text" id="p1-name" placeholder="Nombre Jugador 1" value="Jugador 1">
+                <input type="text" id="p2-name" placeholder="Nombre Jugador 2" value="Jugador 2" style="display:none;">
+            </div>
+
+            <button id="start-game-btn" class="next-btn">Empezar</button>
         </div>
 
-        <div id="quiz-card" class="quiz-card">
-            <div class="flag-container">
-                <img id="flag-img" src="" alt="Flag">
+        <div id="game-screen" style="display: none;">
+            <div class="header">
+                <select onchange="window.location.href=this.value" class="nav-select">
+                    <option value="" disabled selected>Navegación...</option>
+                    <option value="index.html">🏠 Inicio</option>
+                    <option value="paises.html">🌍 Mapa</option>
+                </select>
+                <div class="turn-indicator" id="turn-display"></div>
             </div>
-            <h2 id="question-text">Which country is this?</h2>
-            <div id="options-grid" class="options-grid">
+
+            <div class="scoreboard-dual">
+                <div class="p-score" id="p1-hub">
+                    <span id="p1-label">P1</span>: <span id="p1-score">0</span>
                 </div>
-            <div id="feedback" class="feedback"></div>
-            <button id="next-btn" class="next-btn" style="display: none;">Next Flag</button>
+                <div class="p-score" id="p2-hub" style="display:none;">
+                    <span id="p2-label">P2</span>: <span id="p2-score">0</span>
+                </div>
+            </div>
+
+            <div class="quiz-card">
+                <div class="flag-container">
+                    <img id="flag-img" src="" alt="Bandera">
+                </div>
+                <h2 id="question-text">¿Qué país es?</h2>
+                <div id="options-grid" class="options-grid"></div>
+                <div id="feedback" class="feedback"></div>
+                <button id="next-btn" class="next-btn" style="display: none;">Siguiente</button>
+            </div>
         </div>
     </div>
     <script src="banderasJuego.js"></script>

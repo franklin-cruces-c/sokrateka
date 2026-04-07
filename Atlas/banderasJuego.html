@@ -3,74 +3,83 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Atlas Quiz - Aventura en Familia</title>
+    <title>Atlas Quiz - Modo Desafío</title>
     <link rel="stylesheet" href="banderasJuego.css">
 </head>
 <body>
     <div class="game-wrapper">
         <div id="setup-screen" class="main-card">
-            <h1 class="hero-title">✨ ¡Aprender es una Aventura!</h1>
-            <p class="hero-subtitle">Configura tu equipo de exploradores:</p>
+            <h1>🌍 Configura tu Aventura</h1>
             
-            <div class="setup-controls">
-                <select id="gameMode" class="custom-select">
-                    <option value="1">1 Explorador</option>
-                    <option value="2">Duo de Exploradores</option>
-                    <option value="3" selected>Equipo de 3 Exploradores</option>
-                </select>
+            <div class="setup-grid">
+                <div class="setup-group">
+                    <label>👥 Exploradores</label>
+                    <select id="gameMode" class="custom-select">
+                        <option value="1">Solo Nicole (1)</option>
+                        <option value="2">Duo (2)</option>
+                        <option value="3" selected>Equipo Familiar (3)</option>
+                    </select>
+                </div>
+
+                <div class="setup-group">
+                    <label>📍 Continente</label>
+                    <select id="continentFilter" class="custom-select">
+                        <option value="all">Todo el Mundo</option>
+                        <option value="Africa">África</option>
+                        <option value="Americas">América</option>
+                        <option value="Asia">Asia</option>
+                        <option value="Europe">Europa</option>
+                        <option value="Oceania">Oceanía</option>
+                    </select>
+                </div>
+
+                <div class="setup-group">
+                    <label>⏱️ Límite de Tiempo</label>
+                    <select id="timeLimit" class="custom-select">
+                        <option value="0">Sin límite</option>
+                        <option value="60">1 Minuto</option>
+                        <option value="180">3 Minutos</option>
+                        <option value="300">5 Minutos</option>
+                    </select>
+                </div>
+
+                <div class="setup-group">
+                    <label>🚩 Cantidad de Banderas</label>
+                    <select id="flagLimit" class="custom-select">
+                        <option value="0">Infinitas</option>
+                        <option value="10">10 Banderas</option>
+                        <option value="20">20 Banderas</option>
+                        <option value="50">50 Banderas</option>
+                    </select>
+                </div>
             </div>
 
             <div class="players-grid" id="names-container">
-                <div class="input-box">
-                    <label>Explorador 1</label>
-                    <input type="text" id="p1-name" value="Nicole" placeholder="Nombre...">
-                </div>
-                <div class="input-box">
-                    <label>Explorador 2</label>
-                    <input type="text" id="p2-name" value="Nidia" placeholder="Nombre...">
-                </div>
-                <div class="input-box">
-                    <label>Explorador 3</label>
-                    <input type="text" id="p3-name" value="Franklin" placeholder="Nombre...">
-                </div>
+                <div class="input-box"><label>1°</label><input type="text" id="p1-name" value="Nicole"></div>
+                <div class="input-box"><label>2°</label><input type="text" id="p2-name" value="Nidia"></div>
+                <div class="input-box"><label>3°</label><input type="text" id="p3-name" value="Franklin"></div>
             </div>
 
-            <button id="start-game-btn" class="btn-play">¡Empezar a Descubrir!</button>
-
-            <div class="admin-panel">
-                <span class="admin-label">Gestión de Datos (Portable)</span>
-                <div class="admin-btns">
-                    <button onclick="saveGame()" class="btn-adm save">💾 Guardar</button>
-                    <button onclick="clearStatsOnly()" class="btn-adm stats">📊 Limpiar Puntos</button>
-                    <button onclick="resetEverything()" class="btn-adm reset">🗑️ Borrar Todo</button>
-                </div>
-                <div id="save-status"></div>
-            </div>
+            <button id="start-game-btn" class="btn-play">¡Empezar Desafío!</button>
         </div>
 
         <div id="game-screen" style="display: none;">
             <div class="game-header">
-                <button onclick="location.reload()" class="btn-mini">🏠 Inicio</button>
-                <div id="scoreboard" class="mini-score"></div>
-                <button onclick="showStats()" class="btn-mini accent">📈 Progreso</button>
+                <div id="timer-display" class="stat-badge">⏱️ 00:00</div>
+                <div id="scoreboard" class="scoreboard-layout"></div>
+                <div id="counter-display" class="stat-badge">🚩 0/0</div>
             </div>
 
             <div class="main-card game-box">
-                <div class="flag-display">
-                    <img id="flag-img" src="" alt="Bandera">
+                <div class="flag-display"><img id="flag-img" src="" alt="Bandera"></div>
+                
+                <div class="options-layout" id="options-grid"></div>
+                
+                <div class="action-buttons">
+                    <button id="skip-btn" class="btn-secondary">⏭️ Saltar Turno</button>
+                    <button id="next-btn" class="btn-play" style="display: none;">Siguiente ✨</button>
                 </div>
-                <h2 id="question-label">¿Qué país estamos conociendo?</h2>
-                <div id="options-grid" class="options-layout"></div>
                 <div id="feedback" class="feedback-msg"></div>
-                <button id="next-btn" class="btn-play next-btn" style="display: none;">Siguiente Bandera ✨</button>
-            </div>
-        </div>
-
-        <div id="stats-modal" class="modal-overlay" style="display:none;">
-            <div class="modal-card">
-                <h3>🌟 Camino al Aprendizaje</h3>
-                <div id="stats-body"></div>
-                <button onclick="closeStats()" class="btn-play">Continuar Explorando</button>
             </div>
         </div>
     </div>

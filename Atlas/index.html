@@ -1,39 +1,73 @@
 <!DOCTYPE html>
-<html>
+<html lang="es">
 <head>
     <meta charset="UTF-8">
-    <title>Global Interactive Map</title>
-    <link rel="stylesheet" href="style_mapa.css">
+    <title>Atlas Interactivo</title>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    
+    <style>
+        body, html { margin: 0; padding: 0; height: 100%; overflow: hidden; }
+        #map { height: 100vh; width: 100%; }
+
+        /* Botones estilo Leaflet para que no dañen tu diseño */
+        #custom-controls {
+            position: absolute; top: 80px; left: 10px; z-index: 1000;
+            display: flex; flex-direction: column; gap: 2px;
+        }
+        .map-btn {
+            background: white; border: 2px solid rgba(0,0,0,0.2);
+            width: 30px; height: 30px; cursor: pointer;
+            display: flex; justify-content: center; align-items: center;
+            font-size: 16px; border-radius: 4px;
+        }
+        .map-btn:hover { background: #f4f4f4; }
+    </style>
 </head>
 <body>
-    <div id="map-actions">
-        <button id="btn-reset" onclick="resetWorld()">Reiniciar Mundo</button>
-        <button id="btn-names" onclick="toggleNames()">Mostrar Nombres</button>
+
+    <div id="custom-controls">
+        <button id="btn-reset" class="map-btn" onclick="resetWorld()" title="Reset">↺</button>
+        <button id="btn-names" class="map-btn" onclick="toggleNames()" title="Nombres">🏷️</button>
     </div>
 
     <div id="map"></div>
 
     <script>
-        const i18n = {
-            es: { reset: "Reiniciar Mundo", names: "Mostrar Nombres" },
-            en: { reset: "Reset World", names: "Show Names" }
+        // --- TU LÓGICA ORIGINAL DE MAPA (Mantenla igual) ---
+        // var map = L.map('map')... 
+        // L.tileLayer(...).addTo(map);
+
+        const textosHerramientas = {
+            es: { reset: "Reiniciar Mundo", names: "Mostrar/Ocultar Nombres" },
+            en: { reset: "Reset World", names: "Show/Hide Names" }
         };
 
-        // Escucha al Portal Sokrateka
+        // --- CONEXIÓN CON EL PORTAL ---
         window.addEventListener('message', (event) => {
             if (event.data.tipo === 'SET_LANGUAGE') {
                 const lang = event.data.lang;
-                const texts = i18n[lang] || i18n.en;
-                document.getElementById('btn-reset').textContent = texts.reset;
-                document.getElementById('btn-names').textContent = texts.names;
                 
-                // Si tienes una función propia para traducir los nombres de los países:
-                if (typeof setLanguage === 'function') setLanguage(lang);
+                // 1. Actualiza los globos de texto (tooltips)
+                const t = textosHerramientas[lang] || textosHerramientas.en;
+                document.getElementById('btn-reset').title = t.reset;
+                document.getElementById('btn-names').title = t.names;
+                
+                // 2. Llama a TU función de idioma original del Atlas
+                if (typeof setLanguage === 'function') {
+                    setLanguage(lang); 
+                }
             }
         });
 
-        function resetWorld() { /* Tu lógica de reset */ }
-        function toggleNames() { /* Tu lógica de mostrar nombres */ }
+        // Asegúrate de que estas funciones llamen a lo que ya tenías
+        function resetWorld() {
+            // map.setView([20, 0], 2); // O tu lógica de reinicio
+        }
+
+        function toggleNames() {
+            // Tu lógica para prender/apagar capas de texto
+        }
     </script>
 </body>
 </html>

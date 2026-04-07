@@ -1,9 +1,64 @@
-<div class="sidebar">
-  <h2>🎓 Sokrateka</h2>
-  <button onclick="cargar('Atlas/index.html')">🌍 Atlas (Oficial)</button>
-  <button onclick="cargar('Pitagoras/index.html')">📐 Pitágoras</button>
-</div>
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Sokrateka - Portal Educativo</title>
+    <link rel="stylesheet" href="portal.css">
+</head>
+<body>
+    <div id="app-container" class="menu-open">
+        <aside id="sidebar">
+            <div class="sidebar-header">
+                <h2>🎓 Sokrateka</h2>
+                <button id="toggle-menu">✖</button>
+            </div>
+            <nav>
+                <div class="nav-group">
+                    <label>Geografía</label>
+                    <button onclick="cargar('Atlas/index.html')">🌍 Atlas Oficial</button>
+                    <button onclick="cargar('Atlas.dev/index.html')" class="dev-link">🛠️ Atlas QA</button>
+                </div>
+                <div class="nav-group">
+                    <label>Matemáticas</label>
+                    <button onclick="cargar('Pitagoras/index.html')">📐 Pitágoras</button>
+                </div>
+            </nav>
+        </aside>
 
-<div class="contenedor-app">
-  <iframe id="visor-educativo" src="Atlas/index.html" frameborder="0"></iframe>
-</div>
+        <main id="content-area">
+            <header class="top-bar">
+                <button id="menu-trigger" style="display:none">☰ Menú</button>
+                <span id="current-app">Selecciona una aventura</span>
+            </header>
+            <div class="iframe-wrapper">
+                <iframe id="main-frame" src="about:blank"></iframe>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        const container = document.getElementById('app-container');
+        const toggle = document.getElementById('toggle-menu');
+        const trigger = document.getElementById('menu-trigger');
+
+        // Función para cargar apps en el iframe
+        function cargar(url) {
+            document.getElementById('main-frame').src = url;
+            document.getElementById('current-app').textContent = url.split('/')[0];
+        }
+
+        // Lógica de replegar menú
+        toggle.onclick = () => {
+            container.classList.remove('menu-open');
+            container.classList.add('menu-closed');
+            trigger.style.display = 'block';
+        };
+
+        trigger.onclick = () => {
+            container.classList.remove('menu-closed');
+            container.classList.add('menu-open');
+            trigger.style.display = 'none';
+        };
+    </script>
+</body>
+</html>

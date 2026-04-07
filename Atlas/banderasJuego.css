@@ -2,118 +2,60 @@
     --p1-color: #ff2e63;
     --p2-color: #ffd700;
     --p3-color: #08d9d6;
-    --correct: #2ea44f;
-    --wrong: #ff4d4d;
 }
 
 * { box-sizing: border-box; margin: 0; padding: 0; }
-
-body {
-    font-family: 'Segoe UI', system-ui, sans-serif;
-    background-color: #f4f7f6;
-    display: flex;
-    justify-content: center;
-    padding: 20px;
-    color: #2d3436;
-}
-
+body { font-family: 'Segoe UI', sans-serif; background-color: #f4f7f6; display: flex; justify-content: center; padding: 20px; }
 .game-wrapper { width: 100%; max-width: 650px; }
 
-.main-card {
-    background: white;
-    padding: 25px;
-    border-radius: 24px;
-    box-shadow: 0 15px 35px rgba(0,0,0,0.1);
-    text-align: center;
-}
+.main-card { background: white; padding: 25px; border-radius: 24px; box-shadow: 0 15px 35px rgba(0,0,0,0.1); text-align: center; margin-bottom: 20px; }
 
-.setup-grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 15px;
-    margin-bottom: 20px;
-    text-align: left;
-}
-
-.setup-group label { font-size: 0.8rem; font-weight: bold; margin-bottom: 5px; display: block; }
-
-.custom-select, .input-box input {
-    width: 100%;
-    padding: 12px;
-    border: 2px solid #dfe6e9;
-    border-radius: 12px;
-    outline: none;
-}
-
-.p1-border { border-left: 5px solid var(--p1-color); padding-left: 10px; }
-.p2-border { border-left: 5px solid var(--p2-color); padding-left: 10px; }
-.p3-border { border-left: 5px solid var(--p3-color); padding-left: 10px; }
-
-.btn-play {
-    background: #0984e3;
-    color: white;
-    border: none;
-    padding: 18px;
-    border-radius: 15px;
-    width: 100%;
-    font-size: 1.1rem;
-    font-weight: bold;
-    cursor: pointer;
-    transition: 0.2s;
-}
-
-.game-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
-.scoreboard-layout { display: flex; gap: 8px; }
-
-.p-score {
-    padding: 8px 12px;
-    border-radius: 12px;
-    background: white;
-    border: 2px solid #dfe6e9;
-    font-size: 0.85rem;
-    font-weight: bold;
-}
-
-.active-p1 { border-color: var(--p1-color); background: #fff0f3; box-shadow: 0 0 8px rgba(255, 46, 99, 0.2); }
-.active-p2 { border-color: var(--p2-color); background: #fffff0; box-shadow: 0 0 8px rgba(255, 215, 0, 0.2); }
-.active-p3 { border-color: var(--p3-color); background: #f0ffff; box-shadow: 0 0 8px rgba(8, 217, 214, 0.2); }
-
-.flag-display img { width: 100%; max-width: 350px; border-radius: 15px; border: 1px solid #eee; margin-bottom: 20px; }
-
-.options-layout {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 12px;
-    margin-bottom: 20px;
-}
-
+/* Estilos de botones de opción con nombre de jugador */
 .option {
-    padding: 16px;
+    position: relative;
+    padding: 20px 10px;
     background: white;
     border: 2px solid #dfe6e9;
     border-radius: 15px;
     font-weight: bold;
     cursor: pointer;
     transition: 0.2s;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 5px;
 }
 
-.option:disabled { cursor: default; }
+.player-tag {
+    font-size: 0.65rem;
+    padding: 2px 8px;
+    border-radius: 10px;
+    background: rgba(0,0,0,0.1);
+    color: white;
+    text-transform: uppercase;
+}
 
+.setup-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 20px; text-align: left; }
+.custom-select, .input-box input { width: 100%; padding: 12px; border: 2px solid #dfe6e9; border-radius: 12px; }
+
+.p-score { padding: 8px 12px; border-radius: 12px; background: white; border: 2px solid #dfe6e9; font-size: 0.85rem; font-weight: bold; }
+.active-p1 { border-color: var(--p1-color); background: #fff0f3; }
+.active-p2 { border-color: var(--p2-color); background: #fffff0; }
+.active-p3 { border-color: var(--p3-color); background: #f0ffff; }
+
+.options-layout { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin: 20px 0; }
+.flag-display img { width: 100%; max-width: 350px; border-radius: 15px; box-shadow: 0 4px 10px rgba(0,0,0,0.05); }
+
+.btn-play { background: #0984e3; color: white; border: none; padding: 18px; border-radius: 15px; width: 100%; font-weight: bold; cursor: pointer; }
+.btn-secondary { flex: 1; padding: 12px; border-radius: 12px; border: 1px solid #dfe6e9; background: #f8f9fa; cursor: pointer; }
 .action-buttons { display: flex; gap: 10px; }
 
-.btn-secondary {
-    flex: 1;
-    padding: 12px;
-    border-radius: 12px;
-    border: 1px solid #dfe6e9;
-    background: #f8f9fa;
-    cursor: pointer;
-}
+/* Pantalla de Resultados */
+.result-row { display: flex; justify-content: space-between; padding: 15px; border-bottom: 1px solid #eee; align-items: center; }
+.study-box { background: #fff9db; padding: 20px; border-radius: 15px; margin-top: 20px; text-align: left; }
+.study-item { margin-bottom: 10px; font-size: 0.9rem; }
 
+.feedback-msg { margin-top: 15px; font-weight: bold; min-height: 24px; color: #636e72; }
+.stat-badge { background: #2d3436; color: white; padding: 6px 12px; border-radius: 10px; font-size: 0.8rem; display: inline-block; }
 .header-actions { display: flex; gap: 5px; }
 .btn-mini { padding: 6px 10px; border-radius: 8px; border: none; cursor: pointer; font-size: 0.75rem; font-weight: bold; }
-.btn-mini.save { background: #e3f2fd; color: #0984e3; }
-.btn-mini.stop { background: #ffeaa7; color: #d63031; }
-
-.stat-badge { background: #2d3436; color: white; padding: 6px 12px; border-radius: 10px; font-size: 0.8rem; }
-.feedback-msg { margin-top: 15px; font-weight: bold; color: #636e72; min-height: 24px; }

@@ -1,28 +1,40 @@
-#map-actions {
+/* Posicionamiento del grupo de botones */
+#map-control-group {
     position: absolute;
-    top: 80px; /* Debajo de los botones +/- */
+    top: 80px; /* Debajo de los botones + / - del zoom */
     left: 10px;
     z-index: 1000;
     display: flex;
     flex-direction: column;
-    gap: 5px;
 }
 
-#map-actions button {
+/* Estilo que imita a los botones de zoom de Leaflet */
+#map-control-group button {
     background: white;
-    border: 2px solid rgba(0,0,0,0.2);
-    border-radius: 4px;
-    padding: 6px 12px;
-    font-weight: bold;
-    font-size: 12px;
+    border: none;
+    border-bottom: 1px solid #ccc;
+    width: 30px; /* Tamaño estándar de Leaflet */
+    height: 30px;
+    font-size: 18px; /* Tamaño del icono */
     cursor: pointer;
-    box-shadow: 0 1px 4px rgba(0,0,0,0.2);
-    transition: 0.2s;
-    font-family: 'Segoe UI', sans-serif;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    box-shadow: 0 1px 5px rgba(0,0,0,0.1);
+    transition: 0.2s background-color;
+    padding: 0;
 }
 
-#map-actions button:hover {
+#map-control-group button:last-child {
+    border-bottom: none;
+    border-radius: 0 0 4px 4px;
+}
+
+#map-control-group button:first-child {
+    border-radius: 4px 4px 0 0;
+}
+
+/* Efecto al pasar el mouse */
+#map-control-group button:hover {
     background: #f4f4f4;
-    border-color: #0984e3;
-    color: #0984e3;
 }

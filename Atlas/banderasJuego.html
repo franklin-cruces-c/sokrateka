@@ -35,7 +35,6 @@
                     <label>⏱️ Tiempo</label>
                     <select id="timeLimit" class="custom-select">
                         <option value="0">Sin límite</option>
-                        <option value="60">1 Minuto</option>
                         <option value="180">3 Minutos</option>
                         <option value="300">5 Minutos</option>
                     </select>
@@ -43,10 +42,9 @@
                 <div class="setup-group">
                     <label>🚩 Banderas</label>
                     <select id="flagLimit" class="custom-select">
-                        <option value="0">Infinitas</option>
-                        <option value="10">10</option>
+                        <option value="10" selected>10</option>
                         <option value="20">20</option>
-                        <option value="50">50</option>
+                        <option value="0">Infinitas</option>
                     </select>
                 </div>
             </div>
@@ -76,12 +74,22 @@
                 
                 <div class="action-buttons">
                     <button id="pass-btn" class="btn-secondary">🤝 Ceder Turno</button>
-                    <button id="skip-btn" class="btn-secondary">⏭️ Saltar Bandera</button>
+                    <button id="skip-btn" class="btn-secondary">⏭️ Saltar</button>
                     <button id="next-btn" class="btn-play" style="display: none;">Siguiente Bandera ✨</button>
                 </div>
                 <div id="feedback" class="feedback-msg"></div>
                 <div id="flag-counter" class="stat-badge" style="margin-top:15px">🚩 1/10</div>
             </div>
+        </div>
+
+        <div id="results-screen" class="main-card" style="display: none;">
+            <h2>📊 Resumen de la Aventura</h2>
+            <div id="final-stats-container"></div>
+            <div class="study-box">
+                <h3>💡 Recomendaciones de estudio:</h3>
+                <div id="study-recommendations"></div>
+            </div>
+            <button onclick="location.reload()" class="btn-play" style="margin-top:20px">Jugar de Nuevo</button>
         </div>
     </div>
     <script src="banderasJuego.js"></script>

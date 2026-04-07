@@ -1,74 +1,21 @@
-body {
-    margin: 0;
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    background-color: #f0f2f5;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    height: 100vh;
+/* ... (Mantener los estilos anteriores y añadir estos) ... */
+
+#names-container input {
+    margin-bottom: 10px;
+    width: 90%;
+    align-self: center;
 }
 
-.game-container { width: 100%; max-width: 500px; padding: 20px; }
-
-.header {
-    display: flex;
-    justify-content: space-between;
-    margin-bottom: 15px;
-    align-items: center;
-}
-
-.nav-select { padding: 8px; border-radius: 5px; border: 1px solid #ccc; }
-
-.score { font-weight: bold; font-size: 1.2rem; color: #1f6feb; }
-
-.quiz-card {
-    background: white;
-    padding: 30px;
-    border-radius: 15px;
-    box-shadow: 0 10px 25px rgba(0,0,0,0.1);
-    text-align: center;
-}
-
-.flag-container img {
-    width: 100%;
-    max-width: 250px;
-    height: auto;
-    border: 1px solid #ddd;
-    border-radius: 8px;
-    margin-bottom: 20px;
-}
-
-.options-grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 10px;
-    margin-top: 20px;
-}
-
-button.option {
-    padding: 12px;
-    border: 2px solid #e0e0e0;
-    background: white;
-    border-radius: 8px;
-    cursor: pointer;
-    font-size: 14px;
-    transition: all 0.2s;
-}
-
-button.option:hover { border-color: #1f6feb; background: #f0f7ff; }
-button.correct { background-color: #2ea44f !important; color: white; border-color: #2ea44f; }
-button.wrong { background-color: #d73a49 !important; color: white; border-color: #d73a49; }
-
-.next-btn {
-    margin-top: 20px;
-    width: 100%;
-    padding: 12px;
-    background: #1f6feb;
-    color: white;
-    border: none;
-    border-radius: 8px;
-    cursor: pointer;
+#setup-screen .input-group label {
+    font-size: 0.9rem;
     font-weight: bold;
+    color: #666;
+    margin-bottom: 5px;
 }
 
-.feedback { margin-top: 15px; font-weight: bold; height: 20px; }
+/* Para que se vea centrado el panel de inicio */
+#setup-screen {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}

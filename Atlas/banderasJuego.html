@@ -20,7 +20,6 @@
                         <option value="3" selected>Equipo Familiar (3)</option>
                     </select>
                 </div>
-
                 <div class="setup-group">
                     <label>📍 Continente</label>
                     <select id="continentFilter" class="custom-select">
@@ -32,24 +31,20 @@
                         <option value="Oceania">Oceanía</option>
                     </select>
                 </div>
-
                 <div class="setup-group">
-                    <label>⏱️ Límite de Tiempo</label>
+                    <label>⏱️ Tiempo</label>
                     <select id="timeLimit" class="custom-select">
                         <option value="0">Sin límite</option>
                         <option value="60">1 Minuto</option>
-                        <option value="180">3 Minutos</option>
                         <option value="300">5 Minutos</option>
                     </select>
                 </div>
-
                 <div class="setup-group">
-                    <label>🚩 Cantidad de Banderas</label>
+                    <label>🚩 Banderas</label>
                     <select id="flagLimit" class="custom-select">
                         <option value="0">Infinitas</option>
-                        <option value="10">10 Banderas</option>
-                        <option value="20">20 Banderas</option>
-                        <option value="50">50 Banderas</option>
+                        <option value="10">10</option>
+                        <option value="20">20</option>
                     </select>
                 </div>
             </div>
@@ -72,11 +67,11 @@
 
             <div class="main-card game-box">
                 <div class="flag-display"><img id="flag-img" src="" alt="Bandera"></div>
-                
                 <div class="options-layout" id="options-grid"></div>
                 
                 <div class="action-buttons">
-                    <button id="skip-btn" class="btn-secondary">⏭️ Saltar Turno</button>
+                    <button id="pass-btn" class="btn-secondary">🤝 Ceder Turno</button>
+                    <button id="skip-btn" class="btn-secondary">⏭️ Saltar Bandera</button>
                     <button id="next-btn" class="btn-play" style="display: none;">Siguiente ✨</button>
                 </div>
                 <div id="feedback" class="feedback-msg"></div>

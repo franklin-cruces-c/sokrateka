@@ -3,17 +3,17 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Atlas Quiz - Entrenamiento Portable</title>
+    <title>Atlas Quiz - Aventura en Familia</title>
     <link rel="stylesheet" href="banderasJuego.css">
 </head>
 <body>
     <div class="game-container">
         <div id="setup-screen" class="quiz-card">
-            <h2 id="setup-title">✨ ¡Aprender es una Aventura!</h2>
-            <p>Elige tu equipo de exploradores:</p>
+            <h2 class="title-main">✨ ¡Aprender es una Aventura!</h2>
+            <p class="subtitle">Elige tu equipo de exploradores:</p>
             
-            <div class="input-group">
-                <select id="gameMode" class="nav-select">
+            <div class="setup-group">
+                <select id="gameMode" class="nav-select main-select">
                     <option value="1">1 Explorador</option>
                     <option value="2">Duo de Exploradores</option>
                     <option value="3" selected>Equipo de 3 Exploradores</option>
@@ -21,43 +21,49 @@
             </div>
 
             <div class="names-grid" id="names-container">
-                <input type="text" id="p1-name" placeholder="Explorador 1" value="Franklin">
-                <input type="text" id="p2-name" placeholder="Explorador 2" value="Nidia">
-                <input type="text" id="p3-name" placeholder="Explorador 3" value="Hija">
+                <div class="input-wrapper">
+                    <label>Explorador 1</label>
+                    <input type="text" id="p1-name" placeholder="Escribe nombre..." value="Nicole">
+                </div>
+                <div class="input-wrapper">
+                    <label>Explorador 2</label>
+                    <input type="text" id="p2-name" placeholder="Escribe nombre..." value="Nidia">
+                </div>
+                <div class="input-wrapper">
+                    <label>Explorador 3</label>
+                    <input type="text" id="p3-name" placeholder="Escribe nombre..." value="Franklin">
+                </div>
             </div>
 
-            <button id="start-game-btn" class="next-btn">¡Empezar a Descubrir!</button>
+            <button id="start-game-btn" class="btn-primary">¡Empezar a Descubrir!</button>
 
-            <div class="data-management">
-                <hr style="border:0; border-top:1px solid #eee; margin:20px 0;">
-                <p style="font-size:0.8rem; color:#666; margin-bottom:10px;">Gestión de Datos (Portable)</p>
+            <div class="data-footer">
+                <p>Gestión de Datos (Portable)</p>
                 <div class="data-btns">
-                    <button onclick="saveGame()" class="btn-data btn-save">💾 Guardar Partida</button>
-                    <button onclick="clearStatsOnly()" class="btn-data btn-warning">📊 Reiniciar Puntos</button>
-                    <button onclick="resetEverything()" class="btn-data btn-danger">🗑️ Borrar Todo</button>
+                    <button onclick="saveGame()" class="btn-data save">💾 Guardar</button>
+                    <button onclick="clearStatsOnly()" class="btn-data warn">📊 Limpiar Puntos</button>
+                    <button onclick="resetEverything()" class="btn-data danger">🗑️ Borrar Todo</button>
                 </div>
-                <div id="save-status" style="font-size:0.8rem; margin-top:5px;"></div>
+                <div id="save-status"></div>
             </div>
         </div>
 
         <div id="game-screen" style="display: none;">
-            <div class="header-game">
-                <select onchange="window.location.href=this.value" class="nav-select">
-                    <option value="" disabled selected>Navegación...</option>
-                    <option value="index.html">🏠 Inicio Atlas</option>
-                    <option value="paises.html">🌍 Mapa</option>
-                </select>
-                <button onclick="showStats()" class="btn-stats">📈 Progreso Equipo</button>
+            <div class="game-nav">
+                <button onclick="window.location.href='paises.html'" class="btn-nav">🌍 Mapa</button>
+                <button onclick="showStats()" class="btn-nav stats-btn">📈 Progreso</button>
             </div>
 
-            <div id="scoreboard" class="scoreboard-triple"></div>
+            <div id="scoreboard" class="scoreboard"></div>
 
-            <div class="quiz-card main-quiz">
-                <div class="flag-container"><img id="flag-img" src="" alt="Bandera por descubrir"></div>
+            <div class="quiz-card game-box">
+                <div class="flag-frame">
+                    <img id="flag-img" src="" alt="Bandera">
+                </div>
                 <h2 id="question-text">¿Qué país estamos conociendo?</h2>
                 <div id="options-grid" class="options-grid"></div>
-                <div id="feedback" class="feedback"></div>
-                <button id="next-btn" class="next-btn" style="display: none;">Siguiente Bandera ✨</button>
+                <div id="feedback" class="feedback-area"></div>
+                <button id="next-btn" class="btn-primary next-round" style="display: none;">Siguiente Bandera ✨</button>
             </div>
         </div>
 
@@ -65,7 +71,7 @@
             <div class="modal-content">
                 <h3>🌟 Camino al Aprendizaje</h3>
                 <div id="stats-body"></div>
-                <button onclick="closeStats()" class="next-btn">¡Seguir Explorando!</button>
+                <button onclick="closeStats()" class="btn-primary">¡Seguir Explorando!</button>
             </div>
         </div>
     </div>

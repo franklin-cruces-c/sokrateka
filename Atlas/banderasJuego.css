@@ -1,41 +1,104 @@
+/* Reset básico para asegurar consistencia */
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+    font-family: 'Segoe UI', sans-serif;
+    background-color: #f0f2f5;
+    display: flex;
+    justify-content: center;
+    padding: 20px;
+}
+
+.game-wrapper { width: 100%; max-width: 600px; }
+
+.main-card {
+    background: white;
+    padding: 25px;
+    border-radius: 20px;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+    text-align: center;
+}
+
+/* Grilla de configuración corregida */
+.setup-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 15px;
+    margin-bottom: 20px;
+    text-align: left;
+}
+
+.setup-group label { font-size: 0.8rem; font-weight: bold; display: block; margin-bottom: 5px; }
+
+.custom-select, .input-box input {
+    width: 100%;
+    padding: 10px;
+    border: 2px solid #e1e4e8;
+    border-radius: 10px;
+    font-size: 0.9rem;
+}
+
+/* Nombres */
+.players-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin: 20px 0;
+}
+
+.input-box { display: flex; align-items: center; gap: 10px; }
+
+.btn-play {
+    background: #1f6feb;
+    color: white;
+    border: none;
+    padding: 15px;
+    border-radius: 12px;
+    width: 100%;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+/* Layout del Juego */
+.game-header { display: flex; justify-content: space-between; margin-bottom: 15px; align-items: center; }
+
+.scoreboard-layout { display: flex; gap: 10px; }
+
+.p-score {
+    background: white;
+    padding: 5px 10px;
+    border-radius: 10px;
+    border: 2px solid #ddd;
+    font-size: 0.8rem;
+}
+
+.active-turn { border-color: #ffd700; background: #fffdf2; box-shadow: 0 0 10px rgba(255,215,0,0.2); }
+
 .options-layout {
     display: grid;
-    grid-template-columns: 1fr 1fr; /* Dos columnas fijas */
-    gap: 12px;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
     margin: 20px 0;
 }
 
 .option {
-    padding: 15px 10px;
-    background: #ffffff;
-    border: 2px solid #d0d7de;
+    padding: 15px;
+    border: 2px solid #e1e4e8;
     border-radius: 12px;
-    font-weight: 600;
+    background: white;
     cursor: pointer;
-    transition: all 0.2s;
-    min-height: 60px; /* Asegura altura consistente */
-    display: flex;
-    align-items: center;
-    justify-content: center;
+    font-weight: 600;
 }
 
-.option:hover { border-color: #1f6feb; background: #f6f8fa; }
-
-.action-buttons {
-    display: flex;
-    gap: 10px;
-    margin-top: 15px;
-}
+.action-buttons { display: flex; gap: 10px; margin-top: 15px; }
 
 .btn-secondary {
     background: #f6f8fa;
-    color: #57606a;
     border: 1px solid #d0d7de;
-    padding: 12px;
+    padding: 10px;
     border-radius: 10px;
-    cursor: pointer;
     flex: 1;
+    cursor: pointer;
 }
 
-.scoreboard-layout { display: flex; gap: 8px; }
-.stat-badge { background: #24292f; color: white; padding: 5px 12px; border-radius: 20px; font-size: 0.9rem; }
+.flag-display img { width: 100%; max-width: 300px; border-radius: 10px; }

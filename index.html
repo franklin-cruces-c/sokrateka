@@ -2,62 +2,61 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <title>Sokrateka - Portal Educativo</title>
-    <link rel="stylesheet" href="portal.css">
+    <title>Sokrateka - Panel de Control</title>
+    <link rel="stylesheet" href="style_portal.css">
 </head>
 <body>
-    <div id="app-container" class="menu-open">
+    <div id="main-layout" class="sidebar-visible">
         <aside id="sidebar">
-            <div class="sidebar-header">
+            <div class="sidebar-top">
                 <h2>🎓 Sokrateka</h2>
-                <button id="toggle-menu">✖</button>
+                <button id="btn-toggle" title="Cerrar Menú">◀</button>
             </div>
-            <nav>
-                <div class="nav-group">
-                    <label>Geografía</label>
-                    <button onclick="cargar('Atlas/index.html')">🌍 Atlas Oficial</button>
-                    <button onclick="cargar('Atlas.dev/index.html')" class="dev-link">🛠️ Atlas QA</button>
-                </div>
-                <div class="nav-group">
-                    <label>Matemáticas</label>
-                    <button onclick="cargar('Pitagoras/index.html')">📐 Pitágoras</button>
-                </div>
+            
+            <nav class="menu-nav">
+                <div class="category">🌍 Geografía</div>
+                <button onclick="cargarApp('Atlas/paises.html', 'Atlas Oficial')">Atlas Mapa</button>
+                <button onclick="cargarApp('Atlas/banderasJuego.html', 'Juego de Banderas')">Banderas</button>
+                <button onclick="cargarApp('Atlas.dev/banderasJuego.html', 'QA Banderas')" class="qa-btn">🛠️ Atlas QA</button>
+
+                <div class="category">📐 Matemáticas</div>
+                <button onclick="cargarApp('Pitagoras/index.html', 'Pitágoras')">Pitágoras</button>
             </nav>
         </aside>
 
-        <main id="content-area">
-            <header class="top-bar">
-                <button id="menu-trigger" style="display:none">☰ Menú</button>
-                <span id="current-app">Selecciona una aventura</span>
+        <main id="main-content">
+            <header class="content-header">
+                <button id="btn-open" style="display: none;">☰ Menú</button>
+                <h3 id="app-title">Bienvenido a Sokrateka</h3>
             </header>
-            <div class="iframe-wrapper">
-                <iframe id="main-frame" src="about:blank"></iframe>
-            </div>
+            <section class="iframe-container">
+                <iframe id="app-frame" src="about:blank"></iframe>
+            </section>
         </main>
     </div>
 
     <script>
-        const container = document.getElementById('app-container');
-        const toggle = document.getElementById('toggle-menu');
-        const trigger = document.getElementById('menu-trigger');
+        const layout = document.getElementById('main-layout');
+        const btnToggle = document.getElementById('btn-toggle');
+        const btnOpen = document.getElementById('btn-open');
+        const frame = document.getElementById('app-frame');
+        const title = document.getElementById('app-title');
 
-        // Función para cargar apps en el iframe
-        function cargar(url) {
-            document.getElementById('main-frame').src = url;
-            document.getElementById('current-app').textContent = url.split('/')[0];
+        // Función para cambiar de aplicación
+        function cargarApp(url, nombre) {
+            frame.src = url;
+            title.textContent = nombre;
         }
 
-        // Lógica de replegar menú
-        toggle.onclick = () => {
-            container.classList.remove('menu-open');
-            container.classList.add('menu-closed');
-            trigger.style.display = 'block';
+        // Lógica para contraer/expandir
+        btnToggle.onclick = () => {
+            layout.classList.replace('sidebar-visible', 'sidebar-hidden');
+            btnOpen.style.display = 'block';
         };
 
-        trigger.onclick = () => {
-            container.classList.remove('menu-closed');
-            container.classList.add('menu-open');
-            trigger.style.display = 'none';
+        btnOpen.onclick = () => {
+            layout.classList.replace('sidebar-hidden', 'sidebar-visible');
+            btnOpen.style.display = 'none';
         };
     </script>
 </body>

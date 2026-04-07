@@ -1,51 +1,49 @@
-body, html { margin: 0; padding: 0; height: 100%; font-family: 'Segoe UI', sans-serif; background: #f0f2f5; }
+body, html { margin: 0; padding: 0; height: 100%; font-family: 'Segoe UI', sans-serif; background: #f0f2f5; overflow: hidden; }
 
-#contenedor-principal { display: flex; height: 100vh; width: 100vw; transition: 0.4s cubic-bezier(0.4, 0, 0.2, 1); }
+#contenedor-principal { display: flex; height: 100vh; width: 100vw; transition: 0.4s ease; }
 
-/* Sidebar como una tarjeta lateral */
-#sidebar-menu {
-    width: 280px;
-    padding: 20px;
-    box-sizing: border-box;
-    transition: 0.4s;
-}
+#sidebar-menu { width: 300px; padding: 20px; box-sizing: border-box; transition: 0.4s; }
 
 .sidebar-card {
     background: white;
     height: 100%;
-    border-radius: 24px; /* Mismo radio que tus cartas de juego */
-    box-shadow: 0 10px 30px rgba(0,0,0,0.08);
-    padding: 20px;
+    border-radius: 24px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+    padding: 25px;
     display: flex;
     flex-direction: column;
 }
 
-/* Ocultar menú: se desliza y el ancho pasa a 0 */
-.menu-oculto #sidebar-menu { margin-left: -320px; width: 0; padding: 0; }
+.header-nav { display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px; }
+.header-nav h2 { margin: 0; color: #2d3436; }
+#btn-cerrar { background: #f8f9fa; border: none; border-radius: 50%; width: 35px; height: 35px; cursor: pointer; }
 
-#contenido-app { flex-grow: 1; height: 100%; transition: 0.4s; }
+.seccion { font-size: 0.75rem; font-weight: 800; color: #b2bec3; letter-spacing: 1px; margin: 20px 0 10px 5px; }
 
-iframe { width: 100%; height: 100%; border: none; }
-
-/* Botones con estilo de tu juego */
 nav button {
     width: 100%;
-    padding: 12px;
-    margin-bottom: 8px;
-    border: 1px solid #eee;
+    padding: 14px 18px;
+    margin-bottom: 10px;
+    border: none;
     background: #f8f9fa;
-    border-radius: 12px;
+    border-radius: 16px;
     cursor: pointer;
     font-weight: 600;
     text-align: left;
-    transition: 0.2s;
+    transition: 0.3s;
+    color: #2d3436;
 }
 
-nav button:hover { background: #e3f2fd; border-color: #0984e3; color: #0984e3; }
+nav button:hover { background: #e3f2fd; color: #0984e3; transform: translateX(5px); }
+
+/* Lógica de repliegue */
+.menu-oculto #sidebar-menu { margin-left: -300px; width: 0; padding: 0; opacity: 0; }
+#contenido-app { flex-grow: 1; height: 100%; background: white; }
+iframe { width: 100%; height: 100%; border: none; }
 
 .btn-float {
     position: fixed; top: 20px; left: 20px; z-index: 100;
-    background: white; border: none; width: 50px; height: 50px;
-    border-radius: 15px; box-shadow: 0 4px 15px rgba(0,0,0,0.1);
-    cursor: pointer; font-size: 20px;
+    background: white; border: none; width: 55px; height: 55px;
+    border-radius: 18px; box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+    cursor: pointer; font-size: 24px;
 }

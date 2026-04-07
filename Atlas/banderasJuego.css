@@ -1,139 +1,120 @@
 :root {
     --primary: #1f6feb;
-    --success: #2ea44f;
-    --danger: #d73a49;
-    --warning: #a6720f;
-    --bg: #f8fbff;
+    --bg-soft: #f0f6ff;
+    --white: #ffffff;
+    --text: #24292f;
+    --border: #d0d7de;
 }
+
+* { box-sizing: border-box; }
 
 body {
     margin: 0;
-    font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
-    background-color: var(--bg);
+    padding: 0;
+    font-family: 'Segoe UI', Tahoma, sans-serif;
+    background-color: #f6f8fa;
+    color: var(--text);
     display: flex;
     justify-content: center;
     align-items: center;
     min-height: 100vh;
-    color: #24292f;
 }
 
-.game-container { width: 95%; max-width: 650px; margin: 20px; }
+.game-wrapper {
+    width: 100%;
+    max-width: 700px;
+    padding: 15px;
+}
 
-.quiz-card {
-    background: white;
+.main-card {
+    background: var(--white);
     padding: 30px;
-    border-radius: 24px;
-    box-shadow: 0 12px 40px rgba(0,0,0,0.08);
+    border-radius: 20px;
+    box-shadow: 0 8px 24px rgba(149, 157, 165, 0.2);
     text-align: center;
 }
 
-.title-main { margin-top: 0; color: #1b1f23; font-size: 1.8rem; }
+.hero-title { font-size: 1.6rem; margin-bottom: 10px; }
+.hero-subtitle { color: #57606a; margin-bottom: 25px; }
 
-/* Grilla de nombres corregida */
-.names-grid {
+/* GRILLA DE NOMBRES - AQUÍ ESTABA EL ERROR */
+.players-grid {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
     gap: 15px;
-    margin: 25px 0;
+    margin: 20px 0;
+    background: #fcfcfc;
+    padding: 15px;
+    border-radius: 12px;
 }
 
-.input-wrapper {
+.input-box {
     display: flex;
     flex-direction: column;
     text-align: left;
 }
 
-.input-wrapper label {
-    font-size: 0.8rem;
+.input-box label {
+    font-size: 0.75rem;
     font-weight: bold;
-    color: #57606a;
     margin-bottom: 5px;
-    margin-left: 5px;
+    color: var(--primary);
 }
 
-.input-wrapper input {
-    padding: 12px 15px;
-    border: 2px solid #d0d7de;
-    border-radius: 12px;
+.input-box input {
+    padding: 12px;
+    border: 2px solid var(--border);
+    border-radius: 8px;
     font-size: 1rem;
-    transition: border-color 0.2s;
 }
 
-.input-wrapper input:focus {
-    outline: none;
-    border-color: var(--primary);
-}
-
-.btn-primary {
+.btn-play {
     background: var(--primary);
     color: white;
     border: none;
-    padding: 16px 30px;
-    border-radius: 14px;
+    padding: 15px 30px;
+    border-radius: 12px;
     font-size: 1.1rem;
     font-weight: bold;
     cursor: pointer;
     width: 100%;
-    transition: transform 0.1s, filter 0.2s;
+    margin-top: 10px;
 }
 
-.btn-primary:active { transform: scale(0.98); }
-
-/* Scoreboard */
-.scoreboard {
-    display: flex;
-    gap: 12px;
-    justify-content: center;
-    margin-bottom: 20px;
-    flex-wrap: wrap;
+/* PANEL ADMINISTRATIVO */
+.admin-panel {
+    margin-top: 30px;
+    padding-top: 20px;
+    border-top: 1px solid var(--border);
 }
 
-.p-score {
-    background: white;
-    padding: 12px 20px;
-    border-radius: 16px;
-    border: 3px solid #d0d7de;
-    min-width: 100px;
-    text-align: center;
-}
+.admin-label { font-size: 0.8rem; color: #57606a; display: block; margin-bottom: 10px; }
 
-.active-turn {
-    border-color: #ffd700;
-    box-shadow: 0 4px 12px rgba(255,215,0,0.3);
-    background: #fffdf2;
-}
-
-/* Juego */
-.flag-frame img {
-    width: 100%;
-    max-width: 320px;
-    height: auto;
-    border-radius: 16px;
-    border: 1px solid #d0d7de;
-    margin-bottom: 20px;
-}
-
-.options-grid {
+.admin-btns {
     display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 12px;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 8px;
 }
 
-.option {
-    padding: 14px;
+.btn-adm {
+    padding: 10px 5px;
+    font-size: 0.75rem;
+    border-radius: 6px;
+    border: 1px solid var(--border);
     background: white;
-    border: 2px solid #d0d7de;
-    border-radius: 12px;
     cursor: pointer;
     font-weight: 600;
 }
 
-.option.correct { background: var(--success); color: white; border-color: var(--success); }
-.option.wrong { background: #ffebe9; color: var(--danger); border-color: #ff8182; }
+.btn-adm.save { color: var(--primary); }
+.btn-adm.reset { color: #cf222e; }
 
-/* Footer */
-.data-footer { margin-top: 30px; padding-top: 20px; border-top: 1px solid #d0d7de; }
-.data-btns { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; }
-.btn-data { padding: 8px; border-radius: 8px; border: 1px solid #d0d7de; background: white; cursor: pointer; font-size: 0.75rem; font-weight: bold; }
-.btn-data.save { color: var(--primary); }
-.btn-data.danger { color: var(--danger); }
+/* JUEGO */
+.game-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; }
+.btn-mini { padding: 8px 12px; border-radius: 8px; border: 1px solid var(--border); background: white; cursor: pointer; }
+.options-layout { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 20px; }
+.flag-display img { width: 100%; max-width: 300px; border-radius: 12px; border: 1px solid #eee; }
+
+/* MODAL */
+.modal-overlay { position: fixed; top: 0; left:0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); display: flex; justify-content: center; align-items: center; z-index: 100; }
+.modal-card { background: white; padding: 25px; border-radius: 20px; width: 90%; max-width: 400px; }

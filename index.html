@@ -41,26 +41,36 @@
     <script>
         const contenedor = document.getElementById('contenedor-principal');
         const visor = document.getElementById('visor');
-        const btnCerrar = document.getElementById('btn-cerrar');
-        const btnAbrir = document.getElementById('btn-abrir');
+        const selectLang = document.getElementById('global-lang');
 
+        // Función para cambiar de aplicación y sincronizar idioma al cargar
         function ir(url) {
             visor.src = url;
-            // Al cargar, enviamos el idioma actual para sincronizar
-            visor.onload = () => actualizarIdiomaGlobal(document.getElementById('global-lang').value);
+            // IMPORTANTE: Al cargar la nueva app, forzamos la sincronización de idioma
+            visor.onload = () => actualizarIdiomaGlobal(selectLang.value);
         }
 
+        // Función que envía el idioma al iframe
         function actualizarIdiomaGlobal(lang) {
+            // Enviamos un mensaje con el idioma elegido
             visor.contentWindow.postMessage({ tipo: 'SET_LANGUAGE', lang: lang }, '*');
         }
 
         function enConstruccion() {
-            const html = `<html><body style="display:flex;flex-direction:column;justify-content:center;align-items:center;height:100vh;font-family:sans-serif;background:#f0f2f5;color:#636e72;"><h1>🚧</h1><h2>Pitágoras</h2><p>Página en construcción</p></body></html>`;
+            const html = `<html><body style="display:flex;flex-direction:column;justify-content:center;align-items:center;height:100vh;font-family:sans-serif;background:#f0f2f5;color:#636e72;"><h1>🚧</h1><h2>Página en construcción</h2><p>Estamos preparando las lecciones de matemáticas.</p></body></html>`;
             visor.src = URL.createObjectURL(new Blob([html], { type: 'text/html' }));
         }
 
-        btnCerrar.onclick = () => { contenedor.classList.replace('menu-activo', 'menu-oculto'); btnAbrir.style.display = 'block'; };
-        btnAbrir.onclick = () => { contenedor.classList.replace('menu-oculto', 'menu-activo'); btnAbrir.style.display = 'none'; };
+        // Lógica de apertura/cierre de menú
+        document.getElementById('btn-cerrar').onclick = () => {
+            contenedor.classList.replace('menu-activo', 'menu-oculto');
+            document.getElementById('btn-abrir').style.display = 'block';
+        };
+        document.getElementById('btn-abrir').onclick = () => {
+            contenedor.classList.remove('menu-oculto');
+            contenedor.classList.add('menu-activo');
+            document.getElementById('btn-abrir').style.display = 'none';
+        };
     </script>
 </body>
 </html>

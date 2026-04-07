@@ -12,7 +12,7 @@
             <h2 id="setup-title">Configuración del Juego</h2>
             
             <div class="input-group">
-                <label id="label-lang">Idioma / Language:</label>
+                <label>Idioma / Language:</label>
                 <select id="gameLanguage" class="nav-select">
                     <option value="es" selected>Español</option>
                     <option value="en">English</option>
@@ -20,7 +20,7 @@
             </div>
 
             <div class="input-group">
-                <label id="label-mode">Modo de Juego:</label>
+                <label>Modo de Juego:</label>
                 <select id="gameMode" class="nav-select">
                     <option value="1">1 Jugador</option>
                     <option value="2">2 Jugadores (Duelo)</option>
@@ -28,15 +28,15 @@
             </div>
 
             <div class="input-group" id="names-container">
-                <input type="text" id="p1-name" placeholder="Nombre Jugador 1" value="Jugador 1">
-                <input type="text" id="p2-name" placeholder="Nombre Jugador 2" value="Jugador 2" style="display:none;">
+                <input type="text" id="p1-name" placeholder="Nombre Jugador 1" value="Franklin">
+                <input type="text" id="p2-name" placeholder="Nombre Jugador 2" value="Nidia" style="display:none;">
             </div>
 
             <button id="start-game-btn" class="next-btn">Empezar</button>
         </div>
 
         <div id="game-screen" style="display: none;">
-            <div class="header">
+            <div class="header-game">
                 <select onchange="window.location.href=this.value" class="nav-select">
                     <option value="" disabled selected>Navegación...</option>
                     <option value="index.html">🏠 Inicio</option>
@@ -54,7 +54,7 @@
                 </div>
             </div>
 
-            <div class="quiz-card">
+            <div class="quiz-card main-quiz">
                 <div class="flag-container">
                     <img id="flag-img" src="" alt="Bandera">
                 </div>

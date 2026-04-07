@@ -21,12 +21,15 @@
         }
     };
 
+    // Diccionario extendido para casos comunes que la API no traduce directamente
     const dict = {
         "Spanish": "Español", "English": "Inglés", "French": "Francés", "German": "Alemán",
         "Portuguese": "Portugués", "Italian": "Italiano", "Chinese": "Chino", "Arabic": "Árabe",
         "Russian": "Ruso", "Japanese": "Japonés", "Dutch": "Neerlandés", "Greek": "Griego",
-        "Euro": "Euro", "United States dollar": "Dólar estadounidense", "Pound sterling": "Libra esterlina",
-        "Japanese yen": "Yen japonés", "Swiss franc": "Franco suizo", "Canadian dollar": "Dólar canadiense"
+        "Danish": "Danés", "Lithuanian": "Lituano", "Basque": "Vasco", "Catalan": "Catalán",
+        "Galician": "Gallego", "Swiss German": "Alemán suizo", "Romansh": "Romanche",
+        "Euro": "Euro", "United States dollar": "Dólar estadounidense", "Danish krone": "Corona danesa",
+        "Pound sterling": "Libra esterlina", "Swiss franc": "Franco suizo", "Japanese yen": "Yen japonés"
     };
 
     const map = L.map("map").setView([20, 0], 2);
@@ -75,10 +78,16 @@
             countryInfo.set(c.cca3, data);
         });
 
+        // Función de traducción mejorada
         function translateVal(val) {
             if (currentLang === 'en') return Array.isArray(val) ? val.join(", ") : val;
-            if (Array.isArray(val)) return val.map(item => dict[item] || item).join(", ");
-            return dict[val] || val;
+            
+            if (Array.isArray(val)) {
+                return val.map(item => dict[item] || item).join(", ");
+            }
+            // Traducir moneda: si es "euro" en minúsculas (como en tus capturas), lo pasamos a "Euro"
+            const searchKey = val.charAt(0).toUpperCase() + val.slice(1);
+            return dict[searchKey] || dict[val] || val;
         }
 
         function buildPopup(info) {
@@ -89,7 +98,7 @@
 
             return `<div class="popup-card">
                 <img src="${info.flag}">
-                <b>${name}</b>
+                <b style="display:block; margin-bottom:5px;">${name}</b>
                 <span><b>${t.pop}:</b> ${popFmt}</span>
                 <span><b>${t.area}:</b> ${areaFmt}</span>
                 <span><b>${t.lang}:</b> ${translateVal(info.langs)}</span>
@@ -115,6 +124,7 @@
                         layer.bindPopup(buildPopup(info));
                         layer.on('mouseover', function() { this.setStyle({ fillColor: "#ffcc00", fillOpacity: 0.8 }); });
                         layer.on('mouseout', function() { geojsonLayer.resetStyle(this); });
+                        
                         if (namesVisible) {
                             const pos = manualCoords[f.properties.name] || layer.getBounds().getCenter();
                             L.marker(pos, {
@@ -126,7 +136,6 @@
                 }
             }).addTo(map);
 
-            // DIBUJAR MICROESTADOS (Círculos Naranja)
             microList.forEach(m => {
                 const info = countryInfo.get(m.id);
                 const match = filter === "all" || (info && info.region === filter);
@@ -176,5 +185,5 @@
         };
 
         updateMap();
-    } catch (e) { console.error("Error:", e); }
+    } catch (e) { console.error("Error cargando el mapa:", e); }
 })();

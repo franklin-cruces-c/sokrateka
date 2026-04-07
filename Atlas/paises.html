@@ -2,48 +2,70 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <title>Global Interactive Map</title>
-    <link rel="stylesheet" href="style_mapa.css">
+    <title>Atlas Interactivo</title>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <style>
+        body, html { margin: 0; padding: 0; height: 100%; overflow: hidden; }
+        #map { height: 100vh; width: 100%; background: #aad3df; }
+        
+        /* Controles estilo Leaflet */
+        #map-control-group {
+            position: absolute; top: 80px; left: 10px; z-index: 1000;
+            display: flex; flex-direction: column; box-shadow: 0 1px 5px rgba(0,0,0,0.4);
+            border-radius: 4px; overflow: hidden;
+        }
+        #map-control-group button {
+            background: white; border: none; border-bottom: 1px solid #ccc;
+            width: 34px; height: 34px; font-size: 18px; cursor: pointer;
+            display: flex; justify-content: center; align-items: center;
+        }
+        #map-control-group button:hover { background: #f4f4f4; }
+    </style>
 </head>
 <body>
-    <div id="map-control-group" class="leaflet-control leaflet-bar">
-        <button id="btn-reset" onclick="resetWorld()" title="Reset World">↺</button>
-        <button id="btn-names" onclick="toggleNames()" title="Show/Hide Names">🏷️</button>
+
+    <div id="map-control-group">
+        <button id="btn-reset" onclick="resetMapa()" title="Reset">↺</button>
+        <button id="btn-names" onclick="toggleNombres()" title="Names">🏷️</button>
     </div>
 
     <div id="map"></div>
 
     <script>
-        // Diccionario de tooltips sincronizado con el portal
-        const i18n_tips = {
+        // Configuración de idiomas para tooltips
+        const i18n = {
             es: { reset: "Reiniciar Mundo", names: "Mostrar/Ocultar Nombres" },
             en: { reset: "Reset World", names: "Show/Hide Names" }
         };
 
-        // Escucha al Portal Sokrateka para el idioma global
+        // 1. INICIALIZAR EL MAPA
+        var map = L.map('map').setView([20, 0], 2);
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '&copy; OpenStreetMap'
+        }).addTo(map);
+
+        // 2. ESCUCHAR AL PORTAL
         window.addEventListener('message', (event) => {
             if (event.data.tipo === 'SET_LANGUAGE') {
                 const lang = event.data.lang;
-                const tips = i18n_tips[lang] || i18n_tips.en;
+                const texts = i18n[lang] || i18n.en;
+                document.getElementById('btn-reset').title = texts.reset;
+                document.getElementById('btn-names').title = texts.names;
                 
-                // Actualiza el título que sale al pasar el mouse
-                document.getElementById('btn-reset').title = tips.reset;
-                document.getElementById('btn-names').title = tips.names;
-                
-                // Si tienes una función propia para traducir los nombres de los países:
-                if (typeof setLanguage === 'function') setLanguage(lang);
+                // Aquí llama a tu función de traducción de países si existe
+                if(window.cambiarIdiomaMapa) cambiarIdiomaMapa(lang);
             }
         });
 
-        // Funciones de acción
-        function resetWorld() {
-            // Inserta aquí tu lógica original de reset
-            console.log("Reiniciando mundo...");
+        // 3. FUNCIONES DE BOTONES
+        function resetMapa() {
+            map.setView([20, 0], 2);
         }
 
-        function toggleNames() {
-            // Inserta aquí tu lógica original de mostrar/ocultar nombres
-            console.log("Cambiando visibilidad de nombres...");
+        function toggleNombres() {
+            // Aquí pones tu lógica de capas de nombres
+            alert("Aquí se activan/desactivan los nombres");
         }
     </script>
 </body>

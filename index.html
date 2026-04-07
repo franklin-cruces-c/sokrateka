@@ -20,10 +20,9 @@
                     <p class="seccion">GEOGRAFÍA</p>
                     <button onclick="ir('Atlas/paises.html')">🌍 Mapa Atlas</button>
                     <button onclick="ir('Atlas/banderasJuego.html')">🚩 Juego Banderas</button>
-                    <button onclick="ir('Atlas.dev/banderasJuego.html')" class="dev">🛠️ QA Banderas</button>
 
                     <p class="seccion">MATEMÁTICAS</p>
-                    <button onclick="ir('Pitagoras/index.html')">📐 Pitágoras</button>
+                    <button onclick="enConstruccion()">📐 Pitágoras</button>
                 </nav>
             </div>
         </aside>
@@ -41,6 +40,21 @@
 
         function ir(url) {
             visor.src = url;
+        }
+
+        function enConstruccion() {
+            // Generamos una página simple de carga directamente en el iframe
+            const htmlConstruccion = `
+                <html>
+                <body style="display:flex; flex-direction:column; justify-content:center; align-items:center; height:100vh; font-family:sans-serif; background:#f0f2f5; color:#636e72;">
+                    <h1 style="font-size:4rem;">🚧</h1>
+                    <h2>Pitágoras</h2>
+                    <p>Estamos preparando las lecciones de matemáticas. ¡Vuelve pronto!</p>
+                </body>
+                </html>
+            `;
+            const blob = new Blob([htmlConstruccion], { type: 'text/html' });
+            visor.src = URL.createObjectURL(blob);
         }
 
         btnCerrar.onclick = () => {

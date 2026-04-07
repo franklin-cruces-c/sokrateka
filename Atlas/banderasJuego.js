@@ -1,151 +1,153 @@
 (async function() {
-    let countries = [];
+    let allCountries = [];
+    let filteredCountries = [];
     let players = [];
     let activeP = 0;
-    let gameMode = 1;
-    let isSecondAttempt = false;
-    const STORAGE_KEY = 'atlas_explorer_data_v3';
+    let flagsCount = 0;
+    let timerInterval;
+    let startTime;
+    let gameSettings = {};
 
     async function init() {
-        const res = await fetch("https://restcountries.com/v3.1/all?fields=name,flags,translations");
-        countries = await res.json();
-        
-        document.getElementById('gameMode').addEventListener('change', (e) => {
-            const mode = parseInt(e.target.value);
-            document.getElementById('p2-name').parentElement.style.opacity = mode >= 2 ? '1' : '0.3';
-            document.getElementById('p3-name').parentElement.style.opacity = mode >= 3 ? '1' : '0.3';
-        });
-
-        loadData();
+        const res = await fetch("https://restcountries.com/v3.1/all?fields=name,flags,translations,region");
+        allCountries = await res.json();
         document.getElementById('start-game-btn').onclick = startGame;
     }
 
     function startGame() {
-        gameMode = parseInt(document.getElementById('gameMode').value);
+        gameSettings = {
+            mode: parseInt(document.getElementById('gameMode').value),
+            continent: document.getElementById('continentFilter').value,
+            timeLimit: parseInt(document.getElementById('timeLimit').value),
+            flagLimit: parseInt(document.getElementById('flagLimit').value)
+        };
+
+        // Filtrar países
+        filteredCountries = gameSettings.continent === "all" 
+            ? allCountries 
+            : allCountries.filter(c => c.region === gameSettings.continent);
+
+        // Inicializar jugadores
         players = [];
-        
-        for(let i=1; i<=gameMode; i++) {
-            let nameInput = document.getElementById(`p${i}-name`).value.trim();
+        for(let i=1; i<=gameSettings.mode; i++) {
             players.push({
-                name: nameInput || `Player ${i}`,
+                name: document.getElementById(`p${i}-name`).value || `P${i}`,
                 score: 0,
-                learned: 0,
-                repasar: {}
+                timeTotal: 0
             });
         }
-        
+
         document.getElementById('setup-screen').style.display = 'none';
         document.getElementById('game-screen').style.display = 'block';
-        updateScoreboard();
+        
+        startTimer();
         newRound();
     }
 
-    function loadData() {
-        const saved = localStorage.getItem(STORAGE_KEY);
-        if (saved) {
-            const data = JSON.parse(saved);
-            document.getElementById('gameMode').value = data.mode;
-            data.names.forEach((n, i) => {
-                if(document.getElementById(`p${i+1}-name`)) document.getElementById(`p${i+1}-name`).value = n;
-            });
-        }
-    }
+    function startTimer() {
+        startTime = Date.now();
+        timerInterval = setInterval(() => {
+            const elapsed = Math.floor((Date.now() - startTime) / 1000);
+            
+            // Si hay límite de tiempo
+            if(gameSettings.timeLimit > 0 && elapsed >= gameSettings.timeLimit) {
+                endGame("¡Tiempo agotado!");
+            }
 
-    window.saveGame = () => {
-        const mode = parseInt(document.getElementById('gameMode').value);
-        const names = [
-            document.getElementById('p1-name').value,
-            document.getElementById('p2-name').value,
-            document.getElementById('p3-name').value
-        ];
-        localStorage.setItem(STORAGE_KEY, JSON.stringify({mode, names}));
-        alert("💾 ¡Configuración de exploradores guardada!");
-    };
-
-    window.resetEverything = () => {
-        if(confirm("¿Borrar todos los datos guardados?")) {
-            localStorage.removeItem(STORAGE_KEY);
-            location.reload();
-        }
-    };
-
-    // --- LÓGICA DE JUEGO ---
-    function updateScoreboard() {
-        const sb = document.getElementById('scoreboard');
-        sb.innerHTML = players.map((p, i) => `
-            <div class="p-score ${i === activeP ? 'active-turn' : ''}" style="display:inline-block; margin:0 5px; padding:5px 10px; border-radius:8px; border:2px solid ${i === activeP ? '#ffd700' : '#ddd'}">
-                <small>${p.name}</small><br><b>✨ ${p.score}</b>
-            </div>
-        `).join('');
+            const mins = Math.floor(elapsed / 60).toString().padStart(2, '0');
+            const secs = (elapsed % 60).toString().padStart(2, '0');
+            document.getElementById('timer-display').textContent = `⏱️ ${mins}:${secs}`;
+        }, 1000);
     }
 
     function newRound() {
-        isSecondAttempt = false;
-        document.getElementById('feedback').innerHTML = "";
+        flagsCount++;
+        // Verificar límite de banderas
+        if(gameSettings.flagLimit > 0 && flagsCount > gameSettings.flagLimit) {
+            return endGame("¡Reto completado!");
+        }
+
+        document.getElementById('counter-display').textContent = `🚩 ${flagsCount}${gameSettings.flagLimit > 0 ? '/'+gameSettings.flagLimit : ''}`;
+        document.getElementById('feedback').textContent = "";
         document.getElementById('next-btn').style.display = "none";
+        document.getElementById('skip-btn').style.display = "block";
+        
+        const target = filteredCountries[Math.floor(Math.random() * filteredCountries.length)];
+        const correct = target.translations.spa.common;
+        document.getElementById('flag-img').src = target.flags.png;
+
         const grid = document.getElementById('options-grid');
         grid.innerHTML = "";
-        
-        let target = countries[Math.floor(Math.random() * countries.length)];
-        let correct = target.translations.spa.common;
-        document.getElementById('flag-img').src = target.flags.png;
 
         let opts = [correct];
         while(opts.length < 4) {
-            let n = countries[Math.floor(Math.random() * countries.length)].translations.spa.common;
+            let n = allCountries[Math.floor(Math.random() * allCountries.length)].translations.spa.common;
             if(!opts.includes(n)) opts.push(n);
         }
-        
+
         opts.sort(() => Math.random() - 0.5).forEach(o => {
             const btn = document.createElement('button');
             btn.className = 'option';
             btn.textContent = o;
-            btn.onclick = () => {
-                if(o === correct) {
-                    btn.classList.add('correct');
-                    players[activeP].score += 10;
-                    players[activeP].learned++;
-                    document.getElementById('feedback').innerHTML = "🌟 ¡Excelente!";
-                    endTurn();
-                } else {
-                    btn.classList.add('wrong'); btn.disabled = true;
-                    players[activeP].repasar[correct] = (players[activeP].repasar[correct] || 0) + 1;
-                    if(gameMode > 1 && !isSecondAttempt) {
-                        isSecondAttempt = true;
-                        activeP = (activeP + 1) % gameMode;
-                        document.getElementById('feedback').innerHTML = "¡Casi! Le toca al compañero...";
-                        updateScoreboard();
-                    } else {
-                        document.getElementById('feedback').innerHTML = `Es <b>${correct}</b>. ¡Seguimos!`;
-                        endTurn();
-                    }
-                }
-                updateScoreboard();
-            };
+            btn.onclick = () => checkAnswer(o, correct, btn);
             grid.appendChild(btn);
         });
+
+        updateScoreboard();
     }
 
-    function endTurn() {
+    function checkAnswer(selected, correct, btn) {
+        if(selected === correct) {
+            btn.style.background = "#2ea44f";
+            btn.style.color = "white";
+            players[activeP].score += 10;
+            document.getElementById('feedback').textContent = "🌟 ¡Correcto!";
+            showNext();
+        } else {
+            btn.style.background = "#cf222e";
+            btn.style.color = "white";
+            // En modo multijugador, pasa el turno al fallar
+            if(gameSettings.mode > 1) {
+                activeP = (activeP + 1) % gameSettings.mode;
+                document.getElementById('feedback').textContent = `¡Casi! Turno de ${players[activeP].name}`;
+                updateScoreboard();
+            } else {
+                document.getElementById('feedback').textContent = `Es ${correct}`;
+                showNext();
+            }
+        }
+    }
+
+    function showNext() {
         document.querySelectorAll('.option').forEach(b => b.disabled = true);
         document.getElementById('next-btn').style.display = "block";
+        document.getElementById('skip-btn').style.display = "none";
     }
 
-    document.getElementById('next-btn').onclick = () => {
-        activeP = (activeP + 1) % gameMode;
+    document.getElementById('skip-btn').onclick = () => {
+        activeP = (activeP + 1) % gameSettings.mode;
         newRound();
-        updateScoreboard();
     };
 
-    window.showStats = () => {
-        document.getElementById('stats-body').innerHTML = players.map(p => `
-            <div style="margin-bottom:10px; border-bottom:1px solid #eee; padding-bottom:5px">
-                <b>${p.name}</b>: ${p.learned} banderas aprendidas.
+    document.getElementById('next-btn').onclick = () => {
+        activeP = (activeP + 1) % gameSettings.mode;
+        newRound();
+    };
+
+    function updateScoreboard() {
+        const sb = document.getElementById('scoreboard');
+        sb.innerHTML = players.map((p, i) => `
+            <div class="p-score ${i === activeP ? 'active-turn' : ''}">
+                ${p.name}: ${p.score}
             </div>
         `).join('');
-        document.getElementById('stats-modal').style.display = 'flex';
-    };
-    window.closeStats = () => document.getElementById('stats-modal').style.display = 'none';
+    }
+
+    function endGame(reason) {
+        clearInterval(timerInterval);
+        alert(`${reason}\nNicole: ${players[0].score} puntos.`);
+        location.reload();
+    }
 
     init();
 })();

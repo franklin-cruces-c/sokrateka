@@ -2,7 +2,6 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Sokrateka</title>
     <link rel="stylesheet" href="style_portal.css">
 </head>
@@ -12,28 +11,20 @@
     <div id="contenedor-principal" class="menu-activo">
         <aside id="sidebar-menu">
             <div class="sidebar-card">
-                <div class="header-nav">
-                    <h2>🎓 Sokrateka</h2>
-                    <button id="btn-cerrar">✖</button>
-                </div>
-                
+                <h2>🎓 Sokrateka</h2>
+                <button id="btn-cerrar">✖</button>
                 <nav>
                     <p class="seccion">CONFIGURACIÓN GLOBAL</p>
                     <select id="global-lang" class="portal-select" onchange="notificarIdioma(this.value)">
                         <option value="es">Español 🇪🇸</option>
                         <option value="en">English 🇺🇸</option>
                     </select>
-
                     <p class="seccion">GEOGRAFÍA</p>
                     <button onclick="ir('Atlas/paises.html')">🌍 Mapa Atlas</button>
                     <button onclick="ir('Atlas/banderasJuego.html')">🚩 Juego Banderas</button>
-
-                    <p class="seccion">MATEMÁTICAS</p>
-                    <button onclick="enConstruccion()">📐 Pitágoras</button>
                 </nav>
             </div>
         </aside>
-
         <main id="contenido-app">
             <iframe id="visor" src="Atlas/paises.html" frameborder="0"></iframe>
         </main>
@@ -50,11 +41,6 @@
 
         function notificarIdioma(lang) {
             visor.contentWindow.postMessage({ tipo: 'SET_LANGUAGE', lang: lang }, '*');
-        }
-
-        function enConstruccion() {
-            const html = `<html><body style="display:flex;flex-direction:column;justify-content:center;align-items:center;height:100vh;font-family:sans-serif;background:#f0f2f5;color:#636e72;"><h1>🚧</h1><h2>En Construcción</h2><p>Contenido disponible próximamente.</p></body></html>`;
-            visor.src = URL.createObjectURL(new Blob([html], { type: 'text/html' }));
         }
 
         document.getElementById('btn-cerrar').onclick = () => {

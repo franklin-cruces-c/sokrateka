@@ -17,6 +17,12 @@
                 </div>
                 
                 <nav>
+                    <p class="seccion">CONFIGURACIÓN GLOBAL</p>
+                    <select id="global-lang" class="portal-select" onchange="actualizarIdiomaGlobal(this.value)">
+                        <option value="es">Español 🇪🇸</option>
+                        <option value="en">English 🇺🇸</option>
+                    </select>
+
                     <p class="seccion">GEOGRAFÍA</p>
                     <button onclick="ir('Atlas/paises.html')">🌍 Mapa Atlas</button>
                     <button onclick="ir('Atlas/banderasJuego.html')">🚩 Juego Banderas</button>
@@ -40,32 +46,21 @@
 
         function ir(url) {
             visor.src = url;
+            // Al cargar, enviamos el idioma actual para sincronizar
+            visor.onload = () => actualizarIdiomaGlobal(document.getElementById('global-lang').value);
+        }
+
+        function actualizarIdiomaGlobal(lang) {
+            visor.contentWindow.postMessage({ tipo: 'SET_LANGUAGE', lang: lang }, '*');
         }
 
         function enConstruccion() {
-            // Generamos una página simple de carga directamente en el iframe
-            const htmlConstruccion = `
-                <html>
-                <body style="display:flex; flex-direction:column; justify-content:center; align-items:center; height:100vh; font-family:sans-serif; background:#f0f2f5; color:#636e72;">
-                    <h1 style="font-size:4rem;">🚧</h1>
-                    <h2>Pitágoras</h2>
-                    <p>Estamos preparando las lecciones de matemáticas. ¡Vuelve pronto!</p>
-                </body>
-                </html>
-            `;
-            const blob = new Blob([htmlConstruccion], { type: 'text/html' });
-            visor.src = URL.createObjectURL(blob);
+            const html = `<html><body style="display:flex;flex-direction:column;justify-content:center;align-items:center;height:100vh;font-family:sans-serif;background:#f0f2f5;color:#636e72;"><h1>🚧</h1><h2>Pitágoras</h2><p>Página en construcción</p></body></html>`;
+            visor.src = URL.createObjectURL(new Blob([html], { type: 'text/html' }));
         }
 
-        btnCerrar.onclick = () => {
-            contenedor.classList.replace('menu-activo', 'menu-oculto');
-            btnAbrir.style.display = 'block';
-        };
-
-        btnAbrir.onclick = () => {
-            contenedor.classList.replace('menu-oculto', 'menu-activo');
-            btnAbrir.style.display = 'none';
-        };
+        btnCerrar.onclick = () => { contenedor.classList.replace('menu-activo', 'menu-oculto'); btnAbrir.style.display = 'block'; };
+        btnAbrir.onclick = () => { contenedor.classList.replace('menu-oculto', 'menu-activo'); btnAbrir.style.display = 'none'; };
     </script>
 </body>
 </html>

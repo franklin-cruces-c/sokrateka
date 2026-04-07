@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Atlas Quiz - Banderas</title>
+    <link rel="stylesheet" href="banderasJuego.css">
+</head>
+<body>
+    <div class="game-container">
+        <div class="header">
+            <select onchange="window.location.href=this.value" class="nav-select">
+                <option value="" disabled selected>Navigation...</option>
+                <option value="index.html">🏠 Home</option>
+                <option value="paises.html">🌍 Map</option>
+            </select>
+            <div class="score">Score: <span id="score">0</span></div>
+        </div>
+
+        <div id="quiz-card" class="quiz-card">
+            <div class="flag-container">
+                <img id="flag-img" src="" alt="Flag">
+            </div>
+            <h2 id="question-text">Which country is this?</h2>
+            <div id="options-grid" class="options-grid">
+                </div>
+            <div id="feedback" class="feedback"></div>
+            <button id="next-btn" class="next-btn" style="display: none;">Next Flag</button>
+        </div>
+    </div>
+    <script src="banderasJuego.js"></script>
+</body>
+</html>

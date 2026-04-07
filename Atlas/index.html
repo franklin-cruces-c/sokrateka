@@ -1,112 +1,39 @@
 <!DOCTYPE html>
-<html lang="es">
+<html>
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Atlas Interactivo - Menú</title>
-  <style>
-    :root {
-      --primary: #1f6feb;
-      --bg: #f0f2f5;
-      --text: #333;
-    }
-
-    body {
-      margin: 0;
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-      background-color: var(--bg);
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      min-height: 100vh;
-      color: var(--text);
-    }
-
-    h1 {
-      margin-bottom: 2rem;
-      font-size: 2.5rem;
-      color: #1a1a1a;
-    }
-
-    .menu-container {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-      gap: 20px;
-      max-width: 800px;
-      width: 90%;
-    }
-
-    .card {
-      background: white;
-      padding: 30px;
-      border-radius: 15px;
-      text-align: center;
-      text-decoration: none;
-      color: var(--text);
-      box-shadow: 0 4px 15px rgba(0,0,0,0.1);
-      transition: transform 0.3s, box-shadow 0.3s;
-      border: 2px solid transparent;
-    }
-
-    .card:hover {
-      transform: translateY(-5px);
-      box-shadow: 0 8px 25px rgba(0,0,0,0.15);
-      border-color: var(--primary);
-    }
-
-    .card i {
-      font-size: 3rem;
-      display: block;
-      margin-bottom: 15px;
-    }
-
-    .card h2 {
-      margin: 0;
-      font-size: 1.5rem;
-      color: var(--primary);
-    }
-
-    .card p {
-      margin-top: 10px;
-      font-size: 0.9rem;
-      color: #666;
-    }
-
-    .footer {
-      margin-top: 50px;
-      font-size: 0.8rem;
-      color: #888;
-    }
-  </style>
+    <meta charset="UTF-8">
+    <title>Global Interactive Map</title>
+    <link rel="stylesheet" href="style_mapa.css">
 </head>
 <body>
+    <div id="map-actions">
+        <button id="btn-reset" onclick="resetWorld()">Reiniciar Mundo</button>
+        <button id="btn-names" onclick="toggleNames()">Mostrar Nombres</button>
+    </div>
 
-  <h1>Sokrateka Atlas</h1>
+    <div id="map"></div>
 
-  <div class="menu-container">
-    <a href="paises.html" class="card">
-      <div style="font-size: 40px;">🌍</div>
-      <h2>Mapa de Países</h2>
-      <p>Explora las fronteras, poblaciones y monedas de Europa.</p>
-    </a>
+    <script>
+        const i18n = {
+            es: { reset: "Reiniciar Mundo", names: "Mostrar Nombres" },
+            en: { reset: "Reset World", names: "Show Names" }
+        };
 
-    <a href="banderasJuego.html" class="card">
-      <div style="font-size: 40px;">🌍</div>
-      <h2>Juego de Banderas</h2>
-      <p>Explora las fronteras, poblaciones y monedas de Europa.</p>
-    </a>    
+        // Escucha al Portal Sokrateka
+        window.addEventListener('message', (event) => {
+            if (event.data.tipo === 'SET_LANGUAGE') {
+                const lang = event.data.lang;
+                const texts = i18n[lang] || i18n.en;
+                document.getElementById('btn-reset').textContent = texts.reset;
+                document.getElementById('btn-names').textContent = texts.names;
+                
+                // Si tienes una función propia para traducir los nombres de los países:
+                if (typeof setLanguage === 'function') setLanguage(lang);
+            }
+        });
 
-    <a href="capitales.html" class="card">
-      <div style="font-size: 40px;">🏛️</div>
-      <h2>Mapa de Capitales</h2>
-      <p>Aprende sobre las sedes de gobierno y datos urbanos.</p>
-    </a>
-  </div>
-
-  <div class="footer">
-    Propiedad de Franklin Cruces - 2026
-  </div>
-
+        function resetWorld() { /* Tu lógica de reset */ }
+        function toggleNames() { /* Tu lógica de mostrar nombres */ }
+    </script>
 </body>
 </html>

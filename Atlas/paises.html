@@ -2,67 +2,152 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <title>Atlas Interactivo</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Global Interactive Map</title>
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
-    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-
-    <script src="paises.js"></script>
-
+    <link rel="stylesheet" href="paises.css">
+    <link rel="stylesheet" href="style_mapa.css">
     <style>
-        body, html { margin: 0; padding: 0; height: 100%; overflow: hidden; }
-        #map { height: 100vh; width: 100%; background: #aad3df; }
-        
-        /* Botones pequeños junto al Zoom */
+        /* Ocultar el menú original antiguo que tapaba el mapa */
+        .controls { display: none !important; }
+
+        /* Contenedor de botones alineado con Leaflet */
         #map-actions {
-            position: absolute; top: 80px; left: 10px; z-index: 1000;
-            display: flex; flex-direction: column; box-shadow: 0 1px 5px rgba(0,0,0,0.4);
-            border-radius: 4px; overflow: hidden; background: white;
+            position: absolute;
+            top: 80px; /* Separación estándar de Leaflet */
+            left: 10px;
+            z-index: 1000;
+            display: flex;
+            flex-direction: column;
+            box-shadow: 0 1px 5px rgba(0,0,0,0.3); /* Misma sombra de Leaflet */
+            border-radius: 4px; /* Bordes redondeados del bloque */
         }
-        #map-actions button {
-            background: white; border: none; border-bottom: 1px solid #ccc;
-            width: 30px; height: 30px; font-size: 16px; cursor: pointer;
-            display: flex; justify-content: center; align-items: center;
+
+        /* AJUSTE DE PRECISIÓN: Forzar mismo tamaño y estilo que los botones +/- de Leaflet */
+        #map-actions button, .select-mini-wrapper {
+            width: 30px !important;  /* Tamaño exacto estándar de Leaflet */
+            height: 30px !important;
+            padding: 0 !important;
+            margin: 0 !important;
+            background: white;
+            border: none;
+            border-bottom: 1px solid #ccc; /* Separación interna igual al zoom */
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 16px !important; /* Tamaño de icono cómodo para este espacio */
+            cursor: pointer;
+            transition: background 0.2s;
+            box-sizing: border-box; /* Asegura que el borde no sume tamaño */
         }
-        #map-actions button:hover { background: #f4f4f4; }
+
+        /* Quitar borde inferior al último botón */
+        #map-actions button:last-child, .select-mini-wrapper:last-child {
+            border-bottom: none;
+        }
+
+        /* Estilo hover idéntico a Leaflet */
+        #map-actions button:hover, .select-mini-wrapper:hover {
+            background: #f4f4f4;
+        }
+
+        /* El combo box "invisible" que solo muestra el icono centrado */
+        .select-mini-wrapper {
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        #continentProxy {
+            width: 100% !important;
+            height: 100% !important;
+            opacity: 0; /* Lo hace invisible pero clickable */
+            cursor: pointer;
+            position: absolute;
+            top: 0;
+            left: 0;
+            margin: 0 !important;
+            padding: 0 !important;
+        }
+
+        /* Centrar icono 🌐 dentro del wrapper */
+        .select-mini-wrapper span {
+            font-size: 16px;
+            pointer-events: none; /* Asegura que el click pase al select */
+        }
     </style>
 </head>
 <body>
 
     <div id="map-actions">
-        <button id="btn-reset" onclick="resetMapa()" title="Reiniciar">↺</button>
-        <button id="btn-names" onclick="toggleNombres()" title="Nombres">🏷️</button>
+        <div class="select-mini-wrapper" id="cont-tooltip" title="Filtrar Continente">
+            <span>🌐</span>
+            <select id="continentProxy" onchange="filterContinent(this.value)">
+                <option value="all">Todo el Mundo</option>
+                <option value="Europe">Europa</option>
+                <option value="Africa">África</option>
+                <option value="Americas">América</option>
+                <option value="Asia">Asia</option>
+                <option value="Oceania">Oceanía</option>
+            </select>
+        </div>
+
+        <button id="btn-reset" onclick="resetWorld()" title="Reiniciar Mundo">↺</button>
+
+        <button id="btn-names" onclick="toggleNames()" title="Nombres">🏷️</button>
+    </div>
+
+    <div style="display:none">
+        <select id="languageSelect"><option value="en">en</option><option value="es">es</option></select>
+        <select id="continentSelect">
+            <option value="all">all</option><option value="Europe">Europe</option>
+            <option value="Africa">Africa</option><option value="Americas">Americas</option>
+            <option value="Asia">Asia</option><option value="Oceania">Oceania</option>
+        </select>
+        <button id="resetBtn"></button>
+        <button id="toggleNamesBtn"></button>
+        <div id="toggleMenu"></div><div id="controlsContainer"></div><div id="labelFilter"></div><div id="btnExit"></div>
     </div>
 
     <div id="map"></div>
 
-    <script>
-        // Inicialización básica del mapa
-        var map = L.map('map').setView([20, 0], 2);
-        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-            attribution: '&copy; OpenStreetMap'
-        }).addTo(map);
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script src="paises.js"></script>
 
-        // Escucha del portal para el idioma
+    <script>
+        // Sincronización de Idioma
         window.addEventListener('message', (event) => {
             if (event.data.tipo === 'SET_LANGUAGE') {
                 const lang = event.data.lang;
-                document.getElementById('btn-reset').title = (lang === 'es') ? "Reiniciar Mundo" : "Reset World";
-                document.getElementById('btn-names').title = (lang === 'es') ? "Mostrar Nombres" : "Show Names";
-                
-                // Si tu archivo paises.js tiene una función para cambiar el idioma:
-                if (typeof setLanguage === 'function') setLanguage(lang);
+                const isEs = lang === 'es';
+
+                // Actualizar Tooltips
+                document.getElementById('btn-reset').title = isEs ? "Reiniciar Mundo" : "Reset World";
+                document.getElementById('btn-names').title = isEs ? "Nombres" : "Names";
+                document.getElementById('cont-tooltip').title = isEs ? "Filtrar Continente" : "Filter Continent";
+
+                // Sincronizar con paises.js
+                const langSelect = document.getElementById("languageSelect");
+                langSelect.value = lang;
+                langSelect.dispatchEvent(new Event('change'));
             }
         });
 
-        // Funciones conectadas a los botones
-        function resetMapa() {
-            // Si en paises.js tienes una función específica para reset, úsala aquí
-            map.setView([20, 0], 2);
+        function resetWorld() {
+            document.getElementById("continentProxy").value = "all";
+            document.getElementById("resetBtn").click();
         }
 
-        function toggleNombres() {
-            // Si en paises.js tienes la lógica de etiquetas, llámala aquí
-            console.log("Cambiando etiquetas...");
+        function toggleNames() {
+            document.getElementById("toggleNamesBtn").click();
+        }
+
+        function filterContinent(val) {
+            const realSelect = document.getElementById("continentSelect");
+            realSelect.value = val;
+            realSelect.dispatchEvent(new Event('change'));
         }
     </script>
 </body>

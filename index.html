@@ -1,3 +1,4 @@
+ 
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -7,7 +8,6 @@
 </head>
 <body>
     <button id="btn-abrir" class="btn-float" style="display: none;">☰</button>
-
     <div id="contenedor-principal" class="menu-activo">
         <aside id="sidebar-menu">
             <div class="sidebar-card">
@@ -29,20 +29,12 @@
             <iframe id="visor" src="Atlas/paises.html" frameborder="0"></iframe>
         </main>
     </div>
-
     <script>
         const visor = document.getElementById('visor');
-        const selectLang = document.getElementById('global-lang');
-
-        function ir(url) {
-            visor.src = url;
-            visor.onload = () => notificarIdioma(selectLang.value);
-        }
-
+        function ir(url) { visor.src = url; }
         function notificarIdioma(lang) {
             visor.contentWindow.postMessage({ tipo: 'SET_LANGUAGE', lang: lang }, '*');
         }
-
         document.getElementById('btn-cerrar').onclick = () => {
             document.getElementById('contenedor-principal').classList.replace('menu-activo', 'menu-oculto');
             document.getElementById('btn-abrir').style.display = 'block';

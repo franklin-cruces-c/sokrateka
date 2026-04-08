@@ -1,40 +1,42 @@
-/* Posicionamiento del grupo de botones */
-#map-control-group {
+/* Contenedor de botones alineado con Leaflet */
+#map-actions {
     position: absolute;
-    top: 80px; /* Debajo de los botones + / - del zoom */
-    left: 10px;
+    top: 80px;
+    left: 12px; /* Ajustado un poco a la derecha para alineación visual perfecta */
     z-index: 1000;
     display: flex;
     flex-direction: column;
+    /* Sombra y bordes idénticos a los controles nativos de Leaflet */
+    box-shadow: 0 1px 5px rgba(0,0,0,0.4);
+    border: 2px solid rgba(0,0,0,0.2);
+    border-radius: 4px;
+    background-clip: padding-box;
+    overflow: hidden;
 }
 
-/* Estilo que imita a los botones de zoom de Leaflet */
-#map-control-group button {
+/* Forzar mismo estilo que los botones +/- */
+#map-actions button, .select-mini-wrapper {
+    width: 30px !important;
+    height: 30px !important;
+    padding: 0 !important;
+    margin: 0 !important;
     background: white;
     border: none;
-    border-bottom: 1px solid #ccc;
-    width: 30px; /* Tamaño estándar de Leaflet */
-    height: 30px;
-    font-size: 18px; /* Tamaño del icono */
-    cursor: pointer;
+    border-bottom: 1px solid #ccc; /* Línea divisoria interna */
     display: flex;
-    justify-content: center;
     align-items: center;
-    box-shadow: 0 1px 5px rgba(0,0,0,0.1);
-    transition: 0.2s background-color;
-    padding: 0;
+    justify-content: center;
+    font-size: 16px !important;
+    cursor: pointer;
+    transition: background 0.2s;
+    box-sizing: border-box;
 }
 
-#map-control-group button:last-child {
+/* Quitar la línea divisoria al último elemento */
+#map-actions button:last-child, .select-mini-wrapper:last-child {
     border-bottom: none;
-    border-radius: 0 0 4px 4px;
 }
 
-#map-control-group button:first-child {
-    border-radius: 4px 4px 0 0;
-}
-
-/* Efecto al pasar el mouse */
-#map-control-group button:hover {
+#map-actions button:hover, .select-mini-wrapper:hover {
     background: #f4f4f4;
 }
